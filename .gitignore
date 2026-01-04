@@ -1,0 +1,6 @@
+# Ignore raw log datasets
+data/raw_logs/
+
+# Optional: ignore Python cache
+__pycache__/
+*.pyc
