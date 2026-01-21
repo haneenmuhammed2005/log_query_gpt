@@ -8,10 +8,13 @@ from tqdm import tqdm
 class LogEmbedder:
     """Convert log messages to BERT embeddings"""
 
-    def __init__(self, model_name: str = 'bert-base-uncased'):
+    def __init__(self, model_name: str = "bert-base-uncased"):
         print(f"🔄 Loading {model_name}...")
         self.tokenizer = BertTokenizer.from_pretrained(model_name)
-        self.model = BertModel.from_pretrained(model_name)
+        self.model = BertModel.from_pretrained(
+            model_name,
+            low_cpu_mem_usage=True  # 🔑 IMPORTANT FIX
+        )
         self.model.eval()
         print("✅ BERT loaded successfully!")
 
@@ -19,7 +22,7 @@ class LogEmbedder:
         """Convert one log message to a 768-dim vector"""
         inputs = self.tokenizer(
             log_text,
-            return_tensors='pt',
+            return_tensors="pt",
             max_length=512,
             truncation=True,
             padding=True
@@ -42,7 +45,7 @@ class LogEmbedder:
 
             inputs = self.tokenizer(
                 batch,
-                return_tensors='pt',
+                return_tensors="pt",
                 max_length=512,
                 truncation=True,
                 padding=True
