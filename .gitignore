@@ -7,3 +7,41 @@ __pycache__/
 
 # Generated preprocessing outputs
 data/processed_logs/*.csv
+
+# -------------------------
+# Python
+# -------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# -------------------------
+# VS Code
+# -------------------------
+.vscode/
+
+# -------------------------
+# Virtual environments
+# -------------------------
+venv/
+.env/
+
+# -------------------------
+# Generated data & outputs
+# -------------------------
+data/exports/
+data/evaluation/
+src/rag_system/data/
+
+# -------------------------
+# Logs & cache
+# -------------------------
+*.log
+*.cache
+
+# -------------------------
+# OS files
+# -------------------------
+.DS_Store
+Thumbs.db
