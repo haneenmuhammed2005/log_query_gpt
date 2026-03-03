@@ -1,0 +1,172 @@
+/* ICS-LogQueryGPT Custom Styles */
+/* Author: Kripa - Week 1 Day 2 */
+
+/* Main container styling */
+.main {
+    padding: 2rem;
+}
+
+/* Card styling */
+.stMarkdown div[data-testid="stMarkdownContainer"] {
+    border-radius: 8px;
+}
+
+/* Button styling */
+.stButton > button {
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.stButton > button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+/* Metric cards */
+div[data-testid="metric-container"] {
+    background-color: #1E293B;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #0EA5E9;
+}
+
+/* Input fields */
+.stTextInput > div > div > input {
+    border-radius: 6px;
+    border: 2px solid #334155;
+    background-color: #1E293B;
+}
+
+.stTextInput > div > div > input:focus {
+    border-color: #0EA5E9;
+    box-shadow: 0 0 0 1px #0EA5E9;
+}
+
+/* Selectbox */
+.stSelectbox > div > div {
+    border-radius: 6px;
+    background-color: #1E293B;
+}
+
+/* Success/Error/Warning/Info boxes */
+.stSuccess {
+    background-color: rgba(16, 185, 129, 0.1);
+    border-left: 4px solid #10B981;
+    border-radius: 6px;
+    padding: 1rem;
+}
+
+.stError {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-left: 4px solid #EF4444;
+    border-radius: 6px;
+    padding: 1rem;
+}
+
+.stWarning {
+    background-color: rgba(245, 158, 11, 0.1);
+    border-left: 4px solid #F59E0B;
+    border-radius: 6px;
+    padding: 1rem;
+}
+
+.stInfo {
+    background-color: rgba(14, 165, 233, 0.1);
+    border-left: 4px solid #0EA5E9;
+    border-radius: 6px;
+    padding: 1rem;
+}
+
+/* Sidebar styling */
+section[data-testid="stSidebar"] {
+    background-color: #1E293B;
+    border-right: 1px solid #334155;
+}
+
+/* Dataframe styling */
+div[data-testid="stDataFrame"] {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Expander styling */
+.streamlit-expanderHeader {
+    background-color: #1E293B;
+    border-radius: 6px;
+    border: 1px solid #334155;
+}
+
+/* Loading spinner */
+.stSpinner > div {
+    border-top-color: #0EA5E9 !important;
+}
+
+/* Tabs */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 8px;
+}
+
+.stTabs [data-baseweb="tab"] {
+    border-radius: 6px 6px 0 0;
+    padding: 10px 20px;
+    background-color: #1E293B;
+}
+
+.stTabs [aria-selected="true"] {
+    background-color: #0EA5E9;
+}
+
+/* File uploader */
+div[data-testid="stFileUploader"] {
+    border-radius: 8px;
+    border: 2px dashed #334155;
+    background-color: #1E293B;
+}
+
+/* Progress bar */
+.stProgress > div > div > div {
+    background-color: #0EA5E9;
+}
+
+/* Code blocks */
+.stCodeBlock {
+    border-radius: 6px;
+    border: 1px solid #334155;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1E293B;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}

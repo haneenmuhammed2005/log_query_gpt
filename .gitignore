@@ -45,3 +45,15 @@ src/rag_system/data/
 # -------------------------
 .DS_Store
 Thumbs.db
+
+# Database files
+*.db
+
+# Environment file
+.env
+
+# Python test artifacts
+.pytest_cache/
+
+# Python compiled cache folders everywhere
+**/__pycache__/
