@@ -81,8 +81,8 @@ div[data-testid="metric-container"] {
 
 /* Sidebar styling */
 section[data-testid="stSidebar"] {
-    background-color: #1E293B;
-    border-right: 1px solid #334155;
+    background-color: #0d1424 !important;
+    border-right: 1px solid #1e293b !important;
 }
 
 /* Dataframe styling */

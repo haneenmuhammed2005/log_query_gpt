@@ -1,16 +1,16 @@
 [theme]
 # Ocean Executive Theme - Professional & Modern
-primaryColor = "#0EA5E9"        # Sky blue - primary actions
-backgroundColor = "#0F172A"      # Dark slate - main background
-secondaryBackgroundColor = "#1E293B"  # Slate 800 - cards/panels
-textColor = "#F1F5F9"           # Slate 100 - main text
+primaryColor = "#0EA5E9"
+backgroundColor = "#0F172A"
+secondaryBackgroundColor = "#1E293B"
+textColor = "#F1F5F9"
 font = "sans serif"
 
 [server]
 headless = true
 port = 8501
 enableCORS = false
-enableXsrfProtection = true
+enableXsrfProtection = false
 maxUploadSize = 200
 
 [browser]

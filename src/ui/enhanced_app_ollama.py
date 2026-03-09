@@ -102,6 +102,7 @@ def load_system():
         st.error(f"Error loading system: {e}")
         st.stop()
 
+
 try:
     db, embedder, rag, metadata = load_system()
     system_loaded = True

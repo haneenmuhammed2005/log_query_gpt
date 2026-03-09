@@ -1,0 +1,76 @@
+{
+  "export_metadata": {
+    "generated_at": "2026-02-03T13:28:31.368372",
+    "total_results": 3,
+    "exporter_version": "1.0"
+  },
+  "results": [
+    {
+      "timestamp": "2026-02-03T13:28:31.270254",
+      "question": "Show me authentication failures",
+      "answer": "Found 3 authentication failures in the logs. The failures occurred from IP addresses 192.168.1.100, 192.168.1.101, and 192.168.1.102. All failures were for user \"admin\" and occurred within a 5-minute window, suggesting a potential brute-force attack.",
+      "mode": "security",
+      "cost": 0.0024,
+      "tokens_used": 450,
+      "from_cache": false,
+      "retrieved_logs": [
+        {
+          "log_text": "authentication failed for user admin from ip address",
+          "original": "AUTH FAILED: user=admin ip=192.168.1.100",
+          "protocols": "ssh",
+          "similarity_score": 0.95,
+          "distance": 0.05
+        },
+        {
+          "log_text": "failed login attempt for user admin",
+          "original": "LOGIN FAILED: user=admin ip=192.168.1.101",
+          "protocols": "ssh",
+          "similarity_score": 0.89,
+          "distance": 0.11
+        },
+        {
+          "log_text": "authentication error user admin",
+          "original": "AUTH ERROR: user=admin ip=192.168.1.102",
+          "protocols": "ssh",
+          "similarity_score": 0.82,
+          "distance": 0.18
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-03T13:28:31.270285",
+      "question": "What modbus errors occurred?",
+      "answer": "There were 2 Modbus communication errors. Device 5 experienced a timeout on function code 3 (read holding registers), and device 7 had a connection refused error.",
+      "mode": "analysis",
+      "cost": 0.0018,
+      "tokens_used": 380,
+      "from_cache": false,
+      "retrieved_logs": [
+        {
+          "log_text": "modbus timeout on device num function code num",
+          "original": "MODBUS TIMEOUT: device=5 fc=3",
+          "protocols": "modbus",
+          "similarity_score": 0.92,
+          "distance": 0.08
+        },
+        {
+          "log_text": "modbus connection refused device num",
+          "original": "MODBUS ERROR: device=7 connection refused",
+          "protocols": "modbus",
+          "similarity_score": 0.87,
+          "distance": 0.13
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-03T13:28:31.270293",
+      "question": "Show me authentication failures",
+      "answer": "Found 3 authentication failures in the logs. The failures occurred from IP addresses 192.168.1.100, 192.168.1.101, and 192.168.1.102. All failures were for user \"admin\" and occurred within a 5-minute window, suggesting a potential brute-force attack.",
+      "mode": "security",
+      "cost": 0,
+      "tokens_used": 0,
+      "from_cache": true,
+      "retrieved_logs": []
+    }
+  ]
+}
