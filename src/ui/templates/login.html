@@ -414,7 +414,7 @@ function handleSubmit() {
         auth_submit: '1'
     });
 
-    window.top.location.href = window.top.location.origin + '/Login?' + params.toString();
+    window.top.location.href = window.top.location.origin + '?' + params.toString();
 }
 document.addEventListener('keydown', e => { if (e.key === 'Enter') handleSubmit(); });
 

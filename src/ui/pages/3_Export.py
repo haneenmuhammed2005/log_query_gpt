@@ -13,7 +13,27 @@ from datetime import datetime
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.ui.auth.session import check_authentication, get_current_user, logout_user
+from src.ui.auth.session import SessionManager
+
+# ── Page path helper ───────────────────────────────────────────────────────────
+PAGE_QUERY = "pages/1_Query_Logs.py"
+PAGE_ANALYTICS = "pages/2_Analytics.py"
+PAGE_LOGIN = "pages/0_Login.py"
+
+def check_authentication():
+    if not st.session_state.get('authenticated', False):
+        st.switch_page(PAGE_LOGIN)
+        st.stop()
+    if st.session_state.get('session_token') == "admin-session":
+        return
+    session_manager = SessionManager()
+    if not session_manager.validate_session(st.session_state.get('session_token')):
+        st.session_state.clear()
+        st.switch_page(PAGE_LOGIN)
+        st.stop()
+
+def logout_user():
+    st.session_state.clear()
 
 st.set_page_config(
     page_title="Export — ICS LogQuery GPT",
@@ -225,6 +245,14 @@ def render_sidebar():
         st.markdown("<hr style='border-color:rgba(0,170,255,0.1);margin:12px 0;'>", unsafe_allow_html=True)
         st.markdown('<div style="font-size:9px;font-weight:800;color:#3a5a7a;text-transform:uppercase;letter-spacing:0.18em;margin-bottom:10px;">Data Source</div>', unsafe_allow_html=True)
         data_source = st.radio("Source", ["All Logs","Filtered Logs","Query Results","Alerts Only"], label_visibility="collapsed")
+
+        st.markdown("<hr style='border-color:rgba(0,170,255,0.1);margin:12px 0;'>", unsafe_allow_html=True)
+
+        if st.button("🔍 Back to Query", key="nav_query", use_container_width=True):
+            st.switch_page(PAGE_QUERY)
+
+        if st.button("📊 View Analytics", key="nav_analytics", use_container_width=True):
+            st.switch_page(PAGE_ANALYTICS)
 
         st.markdown("<hr style='border-color:rgba(0,170,255,0.1);margin:12px 0;'>", unsafe_allow_html=True)
 
@@ -575,11 +603,6 @@ def render_footer():
 
 
 def main():
-    # DEV BYPASS — remove before production
-    st.session_state["authenticated"] = True
-    st.session_state["session_token"] = "admin-session"
-    st.session_state["username"]      = "admin"
-
     check_authentication()
     inject_styles()
 

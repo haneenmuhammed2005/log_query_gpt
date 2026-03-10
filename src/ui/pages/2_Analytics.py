@@ -16,6 +16,11 @@ sys.path.insert(0, str(project_root))
 
 from src.ui.auth.session import SessionManager
 
+# ── Page path helper ───────────────────────────────────────────────────────────
+PAGE_QUERY = "pages/1_Query_Logs.py"
+PAGE_EXPORT = "pages/3_Export.py"
+PAGE_LOGIN = "pages/0_Login.py"
+
 st.set_page_config(
     page_title="Analytics - ICS-LogQueryGPT",
     page_icon="📊",
@@ -310,14 +315,14 @@ div[data-testid="stSpinner"] p {
 # ── Auth check ─────────────────────────────────────────────────────────────────
 def check_authentication():
     if not st.session_state.get('authenticated', False):
-        st.warning("Please login to access this page.")
+        st.switch_page(PAGE_LOGIN)
         st.stop()
     if st.session_state.get('session_token') == "admin-session":
         return
     session_manager = SessionManager()
     if not session_manager.validate_session(st.session_state.get('session_token')):
-        st.error("Session expired. Please login again.")
         st.session_state.clear()
+        st.switch_page(PAGE_LOGIN)
         st.stop()
 
 # ── Mock data ──────────────────────────────────────────────────────────────────
@@ -473,9 +478,12 @@ def main():
         if st.button("🔄 Refresh Data", use_container_width=True):
             st.rerun()
 
+        if st.button("🔍 Back to Query", use_container_width=True):
+            st.switch_page(PAGE_QUERY)
+
         if st.button("🚪 Logout", use_container_width=True):
             st.session_state.clear()
-            st.rerun()
+            st.switch_page(PAGE_LOGIN)
 
         inject(f"""
         <div style="font-size:10px;font-weight:600;color:#7aa0c0;margin:10px 4px 12px;
@@ -646,8 +654,8 @@ def main():
         if st.button("Export Data (CSV)", use_container_width=True):
             st.info("Data exported successfully.")
     with e3:
-        if st.button("Generate Report", use_container_width=True):
-            st.info("Report generated successfully.")
+        if st.button("📤 Go to Export Center", use_container_width=True, type="primary"):
+            st.switch_page(PAGE_EXPORT)
 
     # ── FOOTER ────────────────────────────────────────────────────────────────
     inject("""

@@ -284,32 +284,32 @@ hr { border-color: #1e293b !important; }
 """, unsafe_allow_html=True)
 
 # ── Auth check ─────────────────────────────────────────────────────────────────
-def check_authentication():
-    if not st.session_state.get('authenticated', False):
-        st.warning("Please login to access the application.")
-        st.info("Use the Login page from the sidebar.")
-        st.stop()
-    # allow hardcoded admin session to bypass SessionManager
-    if st.session_state.get('session_token') == "admin-session":
-        return
-    session_manager = SessionManager()
-    if not session_manager.validate_session(st.session_state.get('session_token')):
-        st.error("Session expired. Please login again.")
-        st.session_state.clear()
-        st.stop()
-
 # ── Page path helper ───────────────────────────────────────────────────────────
 PAGES_DIR = Path(__file__).parent / "pages"
 
 def _page(pattern: str) -> str:
     matches = list(PAGES_DIR.glob(pattern))
     if matches:
-        return "pages/" + matches[0].name
+        return matches[0].name
     return pattern
 
-PAGE_QUERY     = _page("1_*Query*")
-PAGE_ANALYTICS = _page("2_*Analytics*")
-PAGE_EXPORT    = _page("3_*Export*")
+PAGE_LOGIN = "pages/0_Login.py"
+PAGE_QUERY = "pages/1_Query_Logs.py"
+PAGE_ANALYTICS = "pages/2_Analytics.py"
+PAGE_EXPORT = "pages/3_Export.py"
+
+def check_authentication():
+    if not st.session_state.get('authenticated', False):
+        st.switch_page(PAGE_LOGIN)
+        st.stop()
+    # allow hardcoded admin session to bypass SessionManager
+    if st.session_state.get('session_token') == "admin-session":
+        return
+    session_manager = SessionManager()
+    if not session_manager.validate_session(st.session_state.get('session_token')):
+        st.session_state.clear()
+        st.switch_page(PAGE_LOGIN)
+        st.stop()
 
 # ── Main ───────────────────────────────────────────────────────────────────────
 def main():

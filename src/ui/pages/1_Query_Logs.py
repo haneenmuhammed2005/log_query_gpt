@@ -15,6 +15,11 @@ sys.path.insert(0, str(project_root))
 
 from src.ui.auth.session import SessionManager
 
+# ── Page path helper ───────────────────────────────────────────────────────────
+PAGE_ANALYTICS = "pages/2_Analytics.py"
+PAGE_EXPORT = "pages/3_Export.py"
+PAGE_LOGIN = "pages/0_Login.py"
+
 st.set_page_config(
     page_title="Query Logs - ICS-LogQueryGPT",
     page_icon="🔍",
@@ -297,15 +302,15 @@ div[data-testid="stSpinner"] p { font-family: 'Space Grotesk', sans-serif !impor
 # ── Auth check ─────────────────────────────────────────────────────────────────
 def check_authentication():
     if not st.session_state.get('authenticated', False):
-        st.warning("Please login to access this page.")
+        st.switch_page(PAGE_LOGIN)
         st.stop()
     # allow hardcoded admin session to bypass SessionManager
     if st.session_state.get('session_token') == "admin-session":
         return
     session_manager = SessionManager()
     if not session_manager.validate_session(st.session_state.get('session_token')):
-        st.error("Session expired. Please login again.")
         st.session_state.clear()
+        st.switch_page(PAGE_LOGIN)
         st.stop()
 
 # ── Session state ──────────────────────────────────────────────────────────────
@@ -360,16 +365,6 @@ def run_rag_query(query: str, protocol: str, mode: str) -> dict:
         }
 
 # ── Suggestions ────────────────────────────────────────────────────────────────
-SUGGESTIONS = [
-    "Show failed login attempts in last 24 hours",
-    "List all SSH connections",
-    "Any brute force attacks detected?",
-    "Show HTTP 500 errors",
-    "Display unauthorized access attempts",
-    "Find suspicious FTP activity",
-    "Show all critical alerts",
-    "List failed authentication by protocol",
-]
 
 # ── Response display ───────────────────────────────────────────────────────────
 def display_response(r):
@@ -424,9 +419,11 @@ def display_response(r):
     with b1:
         if st.button("Save Response", key="btn_save"): st.success("Response saved.")
     with b2:
-        if st.button("View Analytics", key="btn_analytics"): st.info("Redirecting to Analytics...")
+        if st.button("📊 View Analytics", key="btn_analytics"):
+            st.switch_page(PAGE_ANALYTICS)
     with b3:
-        if st.button("Export Results", key="btn_export"): st.info("Redirecting to Export...")
+        if st.button("📤 Export Results", key="btn_export"):
+            st.switch_page(PAGE_EXPORT)
 
 # ── Main ───────────────────────────────────────────────────────────────────────
 def main():
@@ -508,12 +505,22 @@ def main():
             st.slider("Max results", 10, 1000, 100)
 
         inject('<div style="height:1px;background:rgba(255,255,255,0.04);margin:10px 0;"></div>')
+        st.markdown("### Navigation")
+        if st.button("🏠 Dashboard", use_container_width=True):
+            st.switch_page("app.py")
+        if st.button("📊 Analytics", use_container_width=True):
+            st.switch_page(PAGE_ANALYTICS)
+        if st.button("📤 Export Results", use_container_width=True):
+            st.switch_page(PAGE_EXPORT)
+
+        inject('<div style="height:1px;background:rgba(255,255,255,0.04);margin:10px 0;"></div>')
 
         # Logout button
+
         inject('<div style="margin-top:8px;"></div>')
         if st.button("🚪 Logout", use_container_width=True):
             st.session_state.clear()
-            st.rerun()
+            st.switch_page(PAGE_LOGIN)
 
         # ── Logged-in user + Access Roles ─────────────────────────────────────
         inject(f"""
@@ -658,23 +665,6 @@ def main():
         if st.button("History", use_container_width=True):
             st.session_state.show_history = not st.session_state.show_history
             st.rerun()
-
-    # ── SUGGESTIONS ───────────────────────────────────────────────────────────
-    st.markdown("---")
-    inject("""
-    <div style="font-size:9px;font-weight:700;color:#3a5a80;text-transform:uppercase;
-        letter-spacing:0.15em;margin-bottom:11px;
-        font-family:'Space Grotesk',sans-serif;
-        opacity:0;animation:fadeUp 0.6s 0.3s ease forwards;">Suggestions</div>
-    """)
-
-    sug_cols = st.columns(4)
-    for i, sug in enumerate(SUGGESTIONS):
-        with sug_cols[i % 4]:
-            label = sug[:28] + "..." if len(sug) > 28 else sug
-            if st.button(label, key=f"sug_{i}", use_container_width=True):
-                st.session_state.query_input = sug
-                st.rerun()
 
     # ── AI RESPONSE ───────────────────────────────────────────────────────────
     if st.session_state.current_results:

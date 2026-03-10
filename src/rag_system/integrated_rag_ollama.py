@@ -2,10 +2,10 @@ import sys
 sys.path.append("src")
 
 from typing import Dict
-from embeddings.log_embedder import LogEmbedder
-from vector_db.vector_database import VectorDatabase
-from rag_system.basic_rag_ollama import BasicRAGOllama
-from rag_system.advanced_prompts_ollama import PromptEngineerOllama
+from src.embeddings.log_embedder import LogEmbedder
+from src.vector_db.vector_database import VectorDatabase
+from src.rag_system.basic_rag_ollama import BasicRAGOllama
+from src.rag_system.advanced_prompts_ollama import PromptEngineerOllama
 
 
 class ICSLogQueryGPTOllama:
