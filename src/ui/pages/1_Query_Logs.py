@@ -16,6 +16,7 @@ sys.path.insert(0, str(project_root))
 from src.ui.auth.session import SessionManager
 
 # ── Page path helper ───────────────────────────────────────────────────────────
+PAGE_QUERY = "pages/1_Query_Logs.py"
 PAGE_ANALYTICS = "pages/2_Analytics.py"
 PAGE_EXPORT = "pages/3_Export.py"
 PAGE_LOGIN = "pages/0_Login.py"
@@ -23,7 +24,8 @@ PAGE_LOGIN = "pages/0_Login.py"
 st.set_page_config(
     page_title="Query Logs - ICS-LogQueryGPT",
     page_icon="🔍",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 # ── Helper ─────────────────────────────────────────────────────────────────────
@@ -103,6 +105,25 @@ section[data-testid="stSidebar"] [data-testid="stSidebarNavLink"] svg,
 section[data-testid="stSidebar"] [data-testid="stSidebarNavLink"] [data-testid="stIconMaterial"],
 section[data-testid="stSidebar"] [data-testid="stSidebarNavItems"] > div:first-child,
 section[data-testid="stSidebar"] [data-testid="stSidebarNavSeparator"] { display: none !important; }
+section[data-testid="stSidebarNav"] { display: none !important; }
+
+/* Force sidebar always visible */
+section[data-testid="stSidebar"] {
+    transform: none !important;
+    width: 21rem !important;
+    min-width: 21rem !important;
+    display: block !important;
+    visibility: visible !important;
+}
+button[data-testid="collapsedControl"] {
+    display: block !important;
+    visibility: visible !important;
+}
+div[data-testid="stSidebarCollapseButton"] {
+    display: block !important;
+}
+
+button[data-testid="collapsedControl"] { display: none !important; }
 
 /* Sidebar section headers */
 section[data-testid="stSidebar"] h3 {
@@ -333,8 +354,8 @@ def load_rag_system():
     try:
         from src.rag_system.integrated_rag_ollama import ICSLogQueryGPTOllama
         system = ICSLogQueryGPTOllama(
-            vector_db_path="data/vector_db/HDFS_index.faiss",
-            metadata_path="data/vector_db/HDFS_metadata.pkl"
+            vector_db_path="D:/Projects/log_query_gpt/data/vector_db/HDFS_index.faiss",
+            metadata_path="D:/Projects/log_query_gpt/data/vector_db/HDFS_metadata.pkl"
         )
         return system, None
     except Exception as e:
@@ -505,18 +526,18 @@ def main():
             st.slider("Max results", 10, 1000, 100)
 
         inject('<div style="height:1px;background:rgba(255,255,255,0.04);margin:10px 0;"></div>')
-        st.markdown("### Navigation")
-        if st.button("🏠 Dashboard", use_container_width=True):
+
+        st.markdown("### 🗺️ Navigation")
+        if st.button("🏠  Dashboard", use_container_width=True):
             st.switch_page("app.py")
-        if st.button("📊 Analytics", use_container_width=True):
+        if st.button("📊  Analytics", use_container_width=True):
             st.switch_page(PAGE_ANALYTICS)
-        if st.button("📤 Export Results", use_container_width=True):
+        if st.button("📤  Export", use_container_width=True):
             st.switch_page(PAGE_EXPORT)
 
         inject('<div style="height:1px;background:rgba(255,255,255,0.04);margin:10px 0;"></div>')
 
-        # Logout button
-
+        # Logout
         inject('<div style="margin-top:8px;"></div>')
         if st.button("🚪 Logout", use_container_width=True):
             st.session_state.clear()
@@ -665,6 +686,8 @@ def main():
         if st.button("History", use_container_width=True):
             st.session_state.show_history = not st.session_state.show_history
             st.rerun()
+
+
 
     # ── AI RESPONSE ───────────────────────────────────────────────────────────
     if st.session_state.current_results:

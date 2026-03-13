@@ -55,8 +55,8 @@ class ICSLogQueryGPTOllama:
 # -------------------------------------------------
 if __name__ == "__main__":
     system = ICSLogQueryGPTOllama(
-        "data/vector_db/HDFS_index.faiss",
-        "data/vector_db/HDFS_metadata.pkl"
+        "D:/Projects/log_query_gpt/data/vector_db/HDFS_index.faiss",
+        "D:/Projects/log_query_gpt/data/vector_db/HDFS_metadata.pkl"
     )
 
     print(system.query(

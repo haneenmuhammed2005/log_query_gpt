@@ -63,7 +63,9 @@ def inject_styles():
         background: linear-gradient(180deg, #080f22 0%, #060d1f 100%) !important;
         border-right: 1px solid rgba(0,170,255,0.10) !important;
     }
-    [data-testid="stSidebar"] * { font-family: 'Space Grotesk', sans-serif !important; }
+    [data-testid="stSidebar"] * {
+section[data-testid="stSidebarNav"] { display: none !important; }
+button[data-testid="collapsedControl"] { display: none !important; } font-family: 'Space Grotesk', sans-serif !important; }
 
     [data-testid="stSidebar"] a {
         color: #6a8aaa !important; font-weight: 500 !important;

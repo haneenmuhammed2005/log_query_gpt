@@ -271,6 +271,9 @@ div[data-testid="stAlert"] {
     font-family: 'Inter', 'Segoe UI', sans-serif !important;
 }
 div[data-testid="stSidebarCollapseButton"] { display: none !important; }
+section[data-testid="stSidebarNav"] { display: none !important; }
+button[data-testid="collapsedControl"] { display: none !important; }
+div[data-testid="stSidebarNavItems"] { display: none !important; }
 hr { border-color: #1e293b !important; }
 
 .footer-caption {
@@ -290,13 +293,13 @@ PAGES_DIR = Path(__file__).parent / "pages"
 def _page(pattern: str) -> str:
     matches = list(PAGES_DIR.glob(pattern))
     if matches:
-        return matches[0].name
+        return "pages/" + matches[0].name
     return pattern
 
-PAGE_LOGIN = "pages/0_Login.py"
-PAGE_QUERY = "pages/1_Query_Logs.py"
-PAGE_ANALYTICS = "pages/2_Analytics.py"
-PAGE_EXPORT = "pages/3_Export.py"
+PAGE_LOGIN     = _page("0_*Login*")
+PAGE_QUERY     = _page("1_*Query*")
+PAGE_ANALYTICS = _page("2_*Analytics*")
+PAGE_EXPORT    = _page("3_*Export*")
 
 def check_authentication():
     if not st.session_state.get('authenticated', False):

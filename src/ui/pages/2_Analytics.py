@@ -104,6 +104,8 @@ section[data-testid="stSidebar"] [data-testid="stSidebarNavLink"] svg,
 section[data-testid="stSidebar"] [data-testid="stSidebarNavLink"] [data-testid="stIconMaterial"],
 section[data-testid="stSidebar"] [data-testid="stSidebarNavItems"] > div:first-child,
 section[data-testid="stSidebar"] [data-testid="stSidebarNavSeparator"] { display: none !important; }
+section[data-testid="stSidebarNav"] { display: none !important; }
+button[data-testid="collapsedControl"] { display: none !important; }
 
 /* Sidebar section headers */
 section[data-testid="stSidebar"] h3 {
