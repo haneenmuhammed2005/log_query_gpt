@@ -1,7 +1,4 @@
-"""
-Export page for ICS-LogQueryGPT
-Redesigned to match Space Grotesk / #060d1f design system.
-"""
+# Export Page
 
 import streamlit as st
 import streamlit.components.v1 as components
@@ -15,7 +12,8 @@ sys.path.insert(0, str(project_root))
 
 from src.ui.auth.session import SessionManager
 
-# ── Page path helper ───────────────────────────────────────────────────────────
+#  Page path helper 
+PAGE_HOME  = "app.py"
 PAGE_QUERY = "pages/1_Query_Logs.py"
 PAGE_ANALYTICS = "pages/2_Analytics.py"
 PAGE_LOGIN = "pages/0_Login.py"
@@ -37,7 +35,7 @@ def logout_user():
 
 st.set_page_config(
     page_title="Export — ICS LogQuery GPT",
-    page_icon="📤",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -63,9 +61,15 @@ def inject_styles():
         background: linear-gradient(180deg, #080f22 0%, #060d1f 100%) !important;
         border-right: 1px solid rgba(0,170,255,0.10) !important;
     }
-    [data-testid="stSidebar"] * {
-section[data-testid="stSidebarNav"] { display: none !important; }
-button[data-testid="collapsedControl"] { display: none !important; } font-family: 'Space Grotesk', sans-serif !important; }
+    [data-testid="stSidebar"] * { font-family: 'Space Grotesk', sans-serif !important; }
+    section[data-testid="stSidebarNav"],
+    [data-testid="stSidebarNavLink"],
+    [data-testid="stSidebarNavItems"],
+    [data-testid="stSidebarHeader"],
+    div[data-testid="stSidebarCollapseButton"],
+    button[data-testid="collapsedControl"],
+    button[data-testid="baseButton-headerNoPadding"],
+    span[data-testid="stIconMaterial"] { display: none !important; }
 
     [data-testid="stSidebar"] a {
         color: #6a8aaa !important; font-weight: 500 !important;
@@ -202,7 +206,7 @@ def render_sidebar():
             <div style="display:flex;align-items:center;gap:12px;">
                 <div style="width:36px;height:36px;background:linear-gradient(135deg,rgba(0,170,255,0.25),rgba(0,80,200,0.3));
                     border:1px solid rgba(0,170,255,0.35);border-radius:10px;display:flex;align-items:center;
-                    justify-content:center;font-size:18px;">🛡️</div>
+                    justify-content:center;font-size:18px;"></div>
                 <div>
                     <div style="font-size:14px;font-weight:800;color:#c0ddf0;letter-spacing:0.04em;line-height:1.2;">ICS LogQuery</div>
                     <div style="font-size:10px;font-weight:600;color:#3a5a7a;letter-spacing:0.1em;text-transform:uppercase;">GPT Platform</div>
@@ -211,26 +215,13 @@ def render_sidebar():
         </div>
         """, unsafe_allow_html=True)
 
-        st.markdown('<div style="font-size:9px;font-weight:800;color:#3a5a7a;text-transform:uppercase;letter-spacing:0.18em;margin-bottom:10px;">Navigation</div>', unsafe_allow_html=True)
-        for icon, label, active in [("🔍","Query Logs",False),("📊","Analytics",False),("📤","Export",True)]:
-            if active:
-                st.markdown(f"""
-                <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;
-                    background:rgba(0,170,255,0.12);border:1px solid rgba(0,170,255,0.28);
-                    border-radius:8px;margin-bottom:4px;">
-                    <span style="font-size:14px;">{icon}</span>
-                    <span style="font-size:13px;font-weight:700;color:#a0c8e8;">{label}</span>
-                    <span style="margin-left:auto;width:6px;height:6px;border-radius:50%;
-                        background:#00aaff;box-shadow:0 0 8px rgba(0,170,255,0.8);"></span>
-                </div>""", unsafe_allow_html=True)
-            else:
-                st.markdown(f"""
-                <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;margin-bottom:4px;"
-                    onmouseover="this.style.background='rgba(0,170,255,0.07)'"
-                    onmouseout="this.style.background='transparent'">
-                    <span style="font-size:14px;">{icon}</span>
-                    <span style="font-size:13px;font-weight:500;color:#6a8aaa;">{label}</span>
-                </div>""", unsafe_allow_html=True)
+        st.markdown('<div style="font-size:9px;font-weight:700;color:#3a5a7a;text-transform:uppercase;letter-spacing:0.18em;margin-bottom:8px;">Navigation</div>', unsafe_allow_html=True)
+        if st.button("Home", use_container_width=True, key="sidebar_home"):
+            st.switch_page(PAGE_HOME)
+        if st.button("Query Logs", use_container_width=True, key="sidebar_query"):
+            st.switch_page(PAGE_QUERY)
+        if st.button("Analytics", use_container_width=True, key="sidebar_analytics"):
+            st.switch_page(PAGE_ANALYTICS)
 
         st.markdown("<hr style='border-color:rgba(0,170,255,0.1);margin:12px 0;'>", unsafe_allow_html=True)
 
@@ -250,11 +241,7 @@ def render_sidebar():
 
         st.markdown("<hr style='border-color:rgba(0,170,255,0.1);margin:12px 0;'>", unsafe_allow_html=True)
 
-        if st.button("🔍 Back to Query", key="nav_query", use_container_width=True):
-            st.switch_page(PAGE_QUERY)
 
-        if st.button("📊 View Analytics", key="nav_analytics", use_container_width=True):
-            st.switch_page(PAGE_ANALYTICS)
 
         st.markdown("<hr style='border-color:rgba(0,170,255,0.1);margin:12px 0;'>", unsafe_allow_html=True)
 
@@ -288,9 +275,12 @@ def render_sidebar():
         </div>
         """, unsafe_allow_html=True)
 
-        if st.button("🚪 Logout", key="logout_btn"):
-            logout_user()
-            st.rerun()
+
+
+        st.markdown("---")
+        if st.button("Logout", use_container_width=True, key="nav_logout"):
+            st.session_state.clear()
+            st.switch_page(PAGE_LOGIN)
 
     return export_format, inc_meta, inc_ts, inc_src, inc_sev, data_source
 
@@ -351,7 +341,7 @@ def render_preview_and_export(df, export_format, inc_ts, inc_src, inc_sev):
 
     with col_left:
         st.markdown(f"""
-        <div style="font-size:9px;font-weight:800;color:#5a7a9a;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px;">📋 Data Preview</div>
+        <div style="font-size:9px;font-weight:800;color:#5a7a9a;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px;"> Data Preview</div>
         <div style="background:rgba(0,15,45,0.65);border:1px solid rgba(0,170,255,0.18);border-radius:12px;overflow:hidden;margin-bottom:14px;">
             <div style="display:flex;align-items:center;justify-content:space-between;
                 padding:10px 14px 8px;border-bottom:1px solid rgba(0,170,255,0.12);background:rgba(0,25,55,0.8);">
@@ -388,7 +378,7 @@ def render_preview_and_export(df, export_format, inc_ts, inc_src, inc_sev):
         num_cols  = len(display_cols)
 
         st.markdown(f"""
-        <div style="font-size:9px;font-weight:800;color:#5a7a9a;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px;">📤 Export Options</div>
+        <div style="font-size:9px;font-weight:800;color:#5a7a9a;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px;"> Export Options</div>
         <div style="background:rgba(0,15,45,0.65);border:1px solid rgba(0,170,255,0.22);border-radius:14px;padding:20px;margin-bottom:14px;">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
                 <div style="background:rgba(0,170,255,.07);border:1px solid rgba(0,170,255,.15);border-radius:9px;padding:12px 14px;">
@@ -429,7 +419,7 @@ def render_preview_and_export(df, export_format, inc_ts, inc_src, inc_sev):
             mime = "text/plain"
 
         st.download_button(
-            label=f"⬇️  Download  {fmt_clean}",
+            label=f"  Download  {fmt_clean}",
             data=export_data,
             file_name=filename,
             mime=mime,
@@ -440,15 +430,15 @@ def render_preview_and_export(df, export_format, inc_ts, inc_src, inc_sev):
 
 def render_templates():
     st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
-    st.markdown('<div style="font-size:9px;font-weight:800;color:#5a7a9a;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px;">⚡ Export Templates</div>', unsafe_allow_html=True)
+    st.markdown('<div style="font-size:9px;font-weight:800;color:#5a7a9a;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px;"> Export Templates</div>', unsafe_allow_html=True)
 
     templates = [
         {"name":"Security Report",  "desc":"All CRITICAL and HIGH severity events with source IPs, protocols, and block status.",
-         "fields":"Timestamp, Source IP, Protocol, Severity, Status","records":"~240 records","accent":"#ff4444","icon":"🛡️"},
+         "fields":"Timestamp, Source IP, Protocol, Severity, Status","records":"~240 records","accent":"#ff4444","icon":""},
         {"name":"Traffic Analysis", "desc":"Full protocol breakdown with event types. Ideal for network forensics investigations.",
-         "fields":"Timestamp, Protocol, Event, Source IP","records":"~1,200 records","accent":"#00aaff","icon":"🌐"},
+         "fields":"Timestamp, Protocol, Event, Source IP","records":"~1,200 records","accent":"#00aaff","icon":""},
         {"name":"Incident Report",  "desc":"Blocked and flagged events only with full metadata for compliance filing.",
-         "fields":"All fields + metadata","records":"~85 records","accent":"#ffaa00","icon":"⚠️"},
+         "fields":"All fields + metadata","records":"~85 records","accent":"#ffaa00","icon":""},
     ]
 
     cols = st.columns(3, gap="medium")
@@ -498,9 +488,9 @@ def render_scheduled_exports():
         sched_format = st.selectbox("Export Format", ["CSV (.csv)","JSON (.json)","Markdown (.md)"], key="sched_fmt")
         email        = st.text_input("Delivery Email", placeholder="security@company.com", key="sched_email")
         enabled      = st.checkbox("Enable scheduled export", value=False, key="sched_enable")
-        if st.button("💾  Save Schedule", key="save_schedule"):
+        if st.button("  Save Schedule", key="save_schedule"):
             if enabled and email:
-                st.success(f"✅ Scheduled {frequency.lower()} export → {email}")
+                st.success(f" Scheduled {frequency.lower()} export → {email}")
             elif not email:
                 st.warning("Please enter a delivery email address.")
             else:
@@ -547,7 +537,7 @@ def render_export_history():
     st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
     st.markdown("""
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-        <div style="font-size:9px;font-weight:800;color:#5a7a9a;text-transform:uppercase;letter-spacing:.18em;">📁 Export History</div>
+        <div style="font-size:9px;font-weight:800;color:#5a7a9a;text-transform:uppercase;letter-spacing:.18em;"> Export History</div>
         <div style="font-size:11px;font-weight:600;color:#4a6a8a;background:rgba(0,170,255,0.06);
             border:1px solid rgba(0,170,255,0.12);border-radius:6px;padding:4px 12px;">
             5 exports · Last 7 days · 228 KB total
@@ -611,7 +601,28 @@ def main():
     export_format, inc_meta, inc_ts, inc_src, inc_sev, data_source = render_sidebar()
     render_page_header()
 
-    df = get_sample_data()
+    query_history = st.session_state.get("query_history", [])
+    current = st.session_state.get("current_results", {})
+    data_source_val = data_source if 'data_source' in dir() else "Query Results"
+
+    if query_history and data_source_val == "Query Results":
+        df = pd.DataFrame([{
+            "Timestamp": q.get("timestamp",""),
+            "Query": q.get("query",""),
+            "Source": q.get("source", q.get("protocol","")),
+            "Mode": q.get("mode",""),
+        } for q in query_history])
+    elif current and current.get("answer") and data_source_val != "All Logs":
+        df = pd.DataFrame([{
+            "Timestamp": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "Query": q.get("query","") if query_history else "",
+            "Answer": current.get("answer","")[:300],
+            "Source": ", ".join(current.get("sources",[])),
+            "Response Time": current.get("response_time",""),
+            "Logs Analyzed": current.get("log_count",""),
+        } for q in (query_history if query_history else [{}])])
+    else:
+        df = get_sample_data()
 
     render_preview_and_export(df, export_format, inc_ts, inc_src, inc_sev)
     render_templates()

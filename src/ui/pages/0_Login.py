@@ -1,6 +1,4 @@
-"""
-ICS-LogQueryGPT — Login Page
-"""
+# Login Page
 
 import streamlit as st
 import streamlit.components.v1 as components
@@ -17,10 +15,11 @@ from src.ui.auth.user_manager import UserManager
 from src.ui.auth.session import SessionManager
 
 PAGE_QUERY = "pages/1_Query_Logs.py"
+PAGE_HOME  = "app.py"
 
 st.set_page_config(
     page_title="ICS-LogQueryGPT",
-    page_icon="🔐",
+    page_icon="",
     layout="wide"
 )
 
@@ -31,7 +30,7 @@ def get_managers():
 um, sm = get_managers()
 
 if st.session_state.get("authenticated"):
-    st.switch_page(PAGE_QUERY)
+    st.switch_page(PAGE_HOME)
 
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -127,9 +126,9 @@ background-size:48px 48px;}
 <div class="sub">Ask questions about your Industrial Control System security logs in plain English — powered by BERT, FAISS, and a fully local Llama 3 model.</div>
 <div class="features">
 <div class="feature"><div class="icon">→</div><span class="feat-text">Natural language queries — no complex syntax required</span></div>
-<div class="feature"><div class="icon">⚡</div><span class="feat-text">Searches 2,000+ HDFS log vectors using semantic BERT embeddings</span></div>
-<div class="feature"><div class="icon">⚙</div><span class="feat-text">Fast, Detailed and Deep Analysis modes with FAISS top-K retrieval</span></div>
-<div class="feature"><div class="icon">🔒</div><span class="feat-text">100% offline — no data leaves your machine, built for air-gapped ICS</span></div>
+<div class="feature"><div class="icon"></div><span class="feat-text">Searches 2,000+ HDFS log vectors using semantic BERT embeddings</span></div>
+<div class="feature"><div class="icon"></div><span class="feat-text">Fast, Detailed and Deep Analysis modes with FAISS top-K retrieval</span></div>
+<div class="feature"><div class="icon"></div><span class="feat-text">100% offline — no data leaves your machine, built for air-gapped ICS</span></div>
 </div>
 <div class="stats">
 <span class="stat">2,000+ logs</span><span class="stat">·</span>
@@ -201,7 +200,7 @@ with right_col:
                 st.session_state.username        = "admin"
                 st.session_state.user_role       = "admin"
                 st.session_state.session_token   = "admin-session"
-                st.switch_page(PAGE_QUERY)
+                st.switch_page(PAGE_HOME)
             else:
                 try:
                     user = um.authenticate(username, password)
@@ -213,7 +212,7 @@ with right_col:
                         st.session_state.username        = user["username"]
                         st.session_state.user_role       = user.get("role", "user")
                         st.session_state.session_token   = token
-                        st.switch_page(PAGE_QUERY)
+                        st.switch_page(PAGE_HOME)
                     else:
                         st.error("Invalid username or password.")
                 except Exception as e:

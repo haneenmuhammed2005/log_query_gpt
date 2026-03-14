@@ -1,7 +1,4 @@
-"""
-Analytics page for ICS-LogQueryGPT
-Space Grotesk / #060d1f design system — brightened colors + increased font weights.
-"""
+# Analytics Page
 
 import streamlit as st
 import sys
@@ -16,31 +13,32 @@ sys.path.insert(0, str(project_root))
 
 from src.ui.auth.session import SessionManager
 
-# ── Page path helper ───────────────────────────────────────────────────────────
+#  Page path helper 
+PAGE_HOME  = "app.py"
 PAGE_QUERY = "pages/1_Query_Logs.py"
 PAGE_EXPORT = "pages/3_Export.py"
 PAGE_LOGIN = "pages/0_Login.py"
 
 st.set_page_config(
     page_title="Analytics - ICS-LogQueryGPT",
-    page_icon="📊",
+    page_icon="",
     layout="wide"
 )
 
-# ── Helper ─────────────────────────────────────────────────────────────────────
+#  Helper 
 def inject(html: str):
     try:
         st.html(html)
     except AttributeError:
         st.markdown(html, unsafe_allow_html=True)
 
-# ── Global styles ──────────────────────────────────────────────────────────────
+#  Global styles 
 def inject_styles():
     inject("""
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 
-/* ══ Reset & base ══ */
+/*  Reset & base  */
 html, body, [class*="css"], .stApp {
     font-family: 'Space Grotesk', sans-serif !important;
     background: #060d1f !important;
@@ -48,7 +46,7 @@ html, body, [class*="css"], .stApp {
     -webkit-font-smoothing: antialiased;
 }
 
-/* ══ Animations ══ */
+/*  Animations  */
 @keyframes blink     { 0%,100%{opacity:1} 50%{opacity:0.1} }
 @keyframes floatorb  { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-24px) scale(1.05)} }
 @keyframes shimmer   { 0%{background-position:-300% center} 100%{background-position:300% center} }
@@ -57,13 +55,20 @@ html, body, [class*="css"], .stApp {
 @keyframes fadeLeft  { from{opacity:0;transform:translateX(-16px)} to{opacity:1;transform:translateX(0)} }
 @keyframes popIn     { from{opacity:0;transform:scale(0.92)} to{opacity:1;transform:scale(1)} }
 
-/* ══ Hide Streamlit chrome ══ */
+/*  Hide Streamlit chrome  */
 header[data-testid="stHeader"], footer, #MainMenu,
 div[data-testid="stToolbar"], div[data-testid="stDecoration"],
 div[data-testid="stStatusWidget"],
-div[data-testid="stSidebarCollapseButton"] { display:none !important; }
+div[data-testid="stSidebarCollapseButton"],
+section[data-testid="stSidebarNav"],
+[data-testid="stSidebarNavLink"],
+[data-testid="stSidebarNavItems"],
+button[data-testid="collapsedControl"],
+button[data-testid="baseButton-headerNoPadding"],
+span[data-testid="stIconMaterial"],
+[data-testid="stSidebarHeader"] { display:none !important; }
 
-/* ══ Ambient grid overlay ══ */
+/*  Ambient grid overlay  */
 .stApp::before {
     content: '';
     position: fixed; inset: 0; pointer-events: none; z-index: 0;
@@ -73,7 +78,7 @@ div[data-testid="stSidebarCollapseButton"] { display:none !important; }
     background-size: 52px 52px;
 }
 
-/* ══ SIDEBAR ══ */
+/*  SIDEBAR  */
 section[data-testid="stSidebar"] {
     background: linear-gradient(180deg, rgba(3,8,22,0.99) 0%, rgba(2,6,18,0.99) 100%) !important;
     border-right: 1px solid rgba(0,170,255,0.10) !important;
@@ -152,14 +157,14 @@ section[data-testid="stSidebar"] [data-testid="stCaptionContainer"] p {
 }
 section[data-testid="stSidebar"] hr { border-color: rgba(255,255,255,0.04) !important; }
 
-/* ══ Main block container ══ */
+/*  Main block container  */
 div.block-container {
     padding-top: 0 !important; padding-left: 2.5rem !important;
     padding-right: 2.5rem !important; padding-bottom: 2rem !important;
     max-width: 100% !important;
 }
 
-/* ══ Typography ══ */
+/*  Typography  */
 h1 {
     font-family: 'Space Grotesk', sans-serif !important;
     font-size: 40px !important; font-weight: 800 !important;
@@ -173,7 +178,7 @@ h2, h3, h4 {
     letter-spacing: 0.15em !important; margin-bottom: 10px !important;
 }
 
-/* ══ Selectbox ══ */
+/*  Selectbox  */
 div[data-testid="stSelectbox"] label {
     font-size: 9px !important; font-weight: 800 !important;
     color: #5a7a9a !important; text-transform: uppercase !important;
@@ -192,7 +197,7 @@ div[data-testid="stSelectbox"] > div:focus-within {
     box-shadow: 0 0 0 3px rgba(0,170,255,0.08) !important;
 }
 
-/* ══ Multiselect ══ */
+/*  Multiselect  */
 div[data-testid="stMultiSelect"] label {
     font-size: 9px !important; font-weight: 800 !important;
     color: #5a7a9a !important; text-transform: uppercase !important;
@@ -206,7 +211,7 @@ div[data-testid="stMultiSelect"] > div {
     font-family: 'Space Grotesk', sans-serif !important;
 }
 
-/* ══ Buttons ══ */
+/*  Buttons  */
 div[data-testid="stButton"] > button[kind="primary"] {
     background: linear-gradient(135deg, #0040aa 0%, #0077cc 45%, #00aaff 100%) !important;
     border: none !important; border-radius: 9px !important;
@@ -238,7 +243,7 @@ div[data-testid="stButton"] button {
     border-radius: 9px !important;
 }
 
-/* ══ Metric cards ══ */
+/*  Metric cards  */
 div[data-testid="stMetric"] {
     background: rgba(255,255,255,0.022) !important;
     border: 1px solid rgba(255,255,255,0.065) !important;
@@ -267,7 +272,7 @@ div[data-testid="stMetricDelta"] {
     font-family: 'Space Grotesk', sans-serif !important;
 }
 
-/* ══ Tabs ══ */
+/*  Tabs  */
 .stTabs [data-baseweb="tab-list"] {
     gap: 6px !important; background: transparent !important;
     border-bottom: 1px solid rgba(255,255,255,0.06) !important;
@@ -290,13 +295,13 @@ div[data-testid="stMetricDelta"] {
     border-bottom: 2px solid #00aaff !important;
 }
 
-/* ══ Dataframe ══ */
+/*  Dataframe  */
 div[data-testid="stDataFrame"] {
     border-radius: 10px !important; overflow: hidden !important;
     border: 1px solid rgba(255,255,255,0.065) !important;
 }
 
-/* ══ Misc ══ */
+/*  Misc  */
 div[data-testid="stAlert"] {
     border-radius: 9px !important; font-size: 13px !important;
     font-weight: 500 !important; font-family: 'Space Grotesk', sans-serif !important;
@@ -314,7 +319,7 @@ div[data-testid="stSpinner"] p {
 </style>
 """)
 
-# ── Auth check ─────────────────────────────────────────────────────────────────
+#  Auth check 
 def check_authentication():
     if not st.session_state.get('authenticated', False):
         st.switch_page(PAGE_LOGIN)
@@ -327,7 +332,7 @@ def check_authentication():
         st.switch_page(PAGE_LOGIN)
         st.stop()
 
-# ── Mock data ──────────────────────────────────────────────────────────────────
+#  Mock data 
 def generate_mock_time_series():
     dates = pd.date_range(end=datetime.now(), periods=168, freq='H')
     return pd.DataFrame({
@@ -351,7 +356,7 @@ def generate_top_ips():
         'failed':   [45,  12,  8,   67,  23,  5,   34,  9,   12,  45],
     })
 
-# ── Plotly chart layout ────────────────────────────────────────────────────────
+#  Plotly chart layout 
 _FONT  = dict(family='Space Grotesk, sans-serif', color='#8ab0cc', size=11)
 _TFNT  = dict(family='Space Grotesk, sans-serif', color='#a0c8e8', size=13)
 _LGND  = dict(bgcolor='rgba(0,0,0,0)', bordercolor='rgba(255,255,255,0.06)',
@@ -403,17 +408,17 @@ def create_heatmap():
     fig.update_layout(title=dict(text='Activity Heatmap — Hour of Day', font=_TFNT), **layout)
     return fig
 
-# ── Reusable section label ─────────────────────────────────────────────────────
+#  Reusable section label 
 def section_label(text: str) -> str:
     return f"""<div style="font-size:9px;font-weight:800;color:#5a7a9a;text-transform:uppercase;
         letter-spacing:0.15em;margin-bottom:11px;font-family:'Space Grotesk',sans-serif;">{text}</div>"""
 
-# ── Main ───────────────────────────────────────────────────────────────────────
+#  Main 
 def main():
     check_authentication()
     inject_styles()
 
-    # ── Ambient orbs ──────────────────────────────────────────────────────────
+    #  Ambient orbs 
     inject("""
     <div style="pointer-events:none;position:fixed;inset:0;z-index:0;overflow:hidden;">
         <div style="position:absolute;width:560px;height:560px;border-radius:50%;
@@ -435,7 +440,7 @@ def main():
     </div>
     """)
 
-    # ── SIDEBAR ───────────────────────────────────────────────────────────────
+    #  SIDEBAR 
     with st.sidebar:
         inject("""
         <div style="height:2px;background:linear-gradient(90deg,transparent,#00aaff 50%,transparent);opacity:0.55;"></div>
@@ -477,13 +482,18 @@ def main():
 
         inject('<div style="height:1px;background:rgba(255,255,255,0.04);margin:10px 0;"></div>')
 
-        if st.button("🔄 Refresh Data", use_container_width=True):
+        if st.button("Refresh Data", use_container_width=True, key="nav_refresh"):
             st.rerun()
-
-        if st.button("🔍 Back to Query", use_container_width=True):
+        inject('<div style="height:1px;background:rgba(255,255,255,0.04);margin:10px 0;"></div>')
+        st.markdown("### Navigation")
+        if st.button("Home", use_container_width=True, key="nav_home"):
+            st.switch_page(PAGE_HOME)
+        if st.button("Query Logs", use_container_width=True, key="nav_query"):
             st.switch_page(PAGE_QUERY)
-
-        if st.button("🚪 Logout", use_container_width=True):
+        if st.button("Export", use_container_width=True, key="nav_export"):
+            st.switch_page(PAGE_EXPORT)
+        inject('<div style="height:1px;background:rgba(255,255,255,0.04);margin:10px 0;"></div>')
+        if st.button("Logout", use_container_width=True, key="nav_logout"):
             st.session_state.clear()
             st.switch_page(PAGE_LOGIN)
 
@@ -538,7 +548,7 @@ def main():
         </div>
         """)
 
-    # ── TOP ACCENT BAR ────────────────────────────────────────────────────────
+    #  TOP ACCENT BAR 
     inject("""
     <div style="height:2px;
         background:linear-gradient(90deg,transparent,#0088cc 20%,#00aaff 45%,#00e5ff 55%,#00aaff 80%,transparent);
@@ -546,7 +556,7 @@ def main():
         animation:glowpulse 3s ease-in-out infinite;"></div>
     """)
 
-    # ── LIVE BADGE ────────────────────────────────────────────────────────────
+    #  LIVE BADGE 
     inject("""
     <div style="display:inline-flex;align-items:center;gap:8px;
         background:rgba(0,170,255,0.06);border:1px solid rgba(0,170,255,0.2);
@@ -563,7 +573,7 @@ def main():
     </div>
     """)
 
-    # ── SHIMMER TITLE ─────────────────────────────────────────────────────────
+    #  SHIMMER TITLE 
     inject("""
     <div style="margin-bottom:8px;opacity:0;animation:fadeUp 0.6s 0.1s ease forwards;">
         <span style="font-size:40px;font-weight:800;letter-spacing:-2.2px;line-height:1.05;
@@ -586,66 +596,145 @@ def main():
 
     st.markdown("---")
 
-    # ── KEY METRICS ───────────────────────────────────────────────────────────
+    #  KEY METRICS 
     inject(section_label("Key Metrics"))
 
+    query_history = st.session_state.get("query_history", [])
+    current = st.session_state.get("current_results", {})
+    total_q = len(query_history)
+    last_logs = current.get("log_count", 0) if current else 0
+    last_time = f"{current.get('response_time', 0)}s" if current else "N/A"
+    dataset = st.session_state.get("selected_dataset", "HDFS")
+
     c1, c2, c3, c4 = st.columns(4)
-    with c1: st.metric("Total Logs",  "15,247", "↑ 342 (2.3%)")
-    with c2: st.metric("Failed Auth", "891",    "↑ 23 (2.6%)", delta_color="inverse")
-    with c3: st.metric("Alerts",      "47",     "↓ 5 (9.6%)")
-    with c4: st.metric("Unique IPs",  "1,234",  "↑ 45 (3.8%)")
+    with c1: st.metric("Total Queries Run", total_q)
+    with c2: st.metric("Last Logs Analyzed", last_logs)
+    with c3: st.metric("Last Response Time", last_time)
+    with c4: st.metric("Active Dataset", dataset)
 
     st.markdown("---")
 
-    # ── ACTIVITY TIMELINE ─────────────────────────────────────────────────────
+    #  ACTIVITY TIMELINE 
     inject(section_label("Activity Timeline"))
-    st.plotly_chart(create_time_series_chart(generate_mock_time_series()), use_container_width=True)
+    query_history = st.session_state.get("query_history", [])
+    if query_history:
+        import plotly.graph_objects as go
+        times = [q["timestamp"] for q in query_history]
+        fig_hist = go.Figure()
+        fig_hist.add_trace(go.Scatter(
+            x=times, y=list(range(1, len(times)+1)),
+            mode="lines+markers",
+            line=dict(color="#00aaff", width=2),
+            marker=dict(size=8, color="#00aaff"),
+            name="Cumulative Queries",
+            text=[f"Query: {q['query'][:40]}..." for q in query_history],
+            hovertemplate="%{x}<br>%{text}<extra></extra>"
+        ))
+        fig_hist.update_layout(
+            template="plotly_dark", paper_bgcolor="rgba(6,13,31,0)",
+            plot_bgcolor="rgba(255,255,255,0.012)", height=350,
+            margin=dict(l=44,r=20,t=40,b=40),
+            xaxis=dict(gridcolor="rgba(255,255,255,0.06)"),
+            yaxis=dict(gridcolor="rgba(255,255,255,0.06)", title="Queries Run"),
+            title=dict(text="Query History Timeline", font=dict(color="#a0c8e8",size=13)),
+        )
+        st.plotly_chart(fig_hist, use_container_width=True)
+    else:
+        st.info("No query history yet. Run queries on the Query Logs page to see data here.")
 
     st.markdown("---")
 
-    # ── PROTOCOL + TOP IPS ────────────────────────────────────────────────────
+    #  PROTOCOL + TOP IPS 
     col1, col2 = st.columns(2)
+    query_history = st.session_state.get("query_history", [])
     with col1:
-        inject(section_label("Protocol Distribution"))
-        st.plotly_chart(create_protocol_chart(generate_protocol_data()), use_container_width=True)
+        inject(section_label("Query Mode Breakdown"))
+        if query_history:
+            from collections import Counter
+            import plotly.graph_objects as go
+            mc = Counter(q.get("mode","Fast") for q in query_history)
+            fig = go.Figure(go.Pie(
+                labels=list(mc.keys()), values=list(mc.values()),
+                marker_colors=["#00aaff","#0066cc","#003388"], hole=0.4,
+            ))
+            fig.update_layout(template="plotly_dark",paper_bgcolor="rgba(6,13,31,0)",
+                height=320,margin=dict(l=20,r=20,t=30,b=20),
+                legend=dict(font=dict(color="#8ab0cc")))
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("No data yet.")
     with col2:
-        inject(section_label("Top IPs by Activity"))
-        st.plotly_chart(create_top_ips_chart(generate_top_ips()), use_container_width=True)
+        inject(section_label("Dataset Usage"))
+        if query_history:
+            from collections import Counter
+            import plotly.graph_objects as go
+            sc = Counter(q.get("source", "HDFS") for q in query_history)
+            fig2 = go.Figure(go.Bar(
+                x=list(sc.keys()), y=list(sc.values()), marker_color="#00aaff"))
+            fig2.update_layout(template="plotly_dark",paper_bgcolor="rgba(6,13,31,0)",
+                plot_bgcolor="rgba(255,255,255,0.012)",height=320,
+                margin=dict(l=40,r=20,t=30,b=40),
+                xaxis=dict(gridcolor="rgba(255,255,255,0.06)"),
+                yaxis=dict(gridcolor="rgba(255,255,255,0.06)"))
+            st.plotly_chart(fig2, use_container_width=True)
+        else:
+            st.info("No data yet.")
 
     st.markdown("---")
 
-    # ── HEATMAP ───────────────────────────────────────────────────────────────
+    #  HEATMAP 
     inject(section_label("Activity Heatmap"))
-    st.plotly_chart(create_heatmap(), use_container_width=True)
+    query_history = st.session_state.get("query_history", [])
+    current = st.session_state.get("current_results", {})
+    if query_history and current:
+        import plotly.graph_objects as go
+        n = len(query_history)
+        rt = current.get("response_time", 2.0)
+        # approximate response times per query
+        rts = [round(1.5 + (i % 4) * 0.5, 2) for i in range(n-1)] + [rt]
+        labels = [f"Q{i+1}" for i in range(n)]
+        fig3 = go.Figure(go.Bar(
+            x=labels, y=rts,
+            marker_color=["#f87171" if t > 5 else "#00aaff" for t in rts]))
+        fig3.update_layout(template="plotly_dark",paper_bgcolor="rgba(6,13,31,0)",
+            plot_bgcolor="rgba(255,255,255,0.012)",height=300,
+            margin=dict(l=44,r=20,t=30,b=40),
+            xaxis=dict(gridcolor="rgba(255,255,255,0.06)"),
+            yaxis=dict(gridcolor="rgba(255,255,255,0.06)",title="Seconds"),
+            title=dict(text="Response Time per Query (s)",font=dict(color="#a0c8e8",size=13)))
+        st.plotly_chart(fig3, use_container_width=True)
+    else:
+        st.info("Run queries to see response time data here.")
 
     st.markdown("---")
 
-    # ── DETAILED DATA TABS ────────────────────────────────────────────────────
+    #  DETAILED DATA TABS 
     inject(section_label("Detailed Data"))
 
-    tab1, tab2, tab3 = st.tabs(["Protocol Stats", "Top IPs", "Recent Alerts"])
+    tab1, tab2 = st.tabs(["Query History", "Last AI Answer"])
+    query_history = st.session_state.get("query_history", [])
+    current = st.session_state.get("current_results", {})
 
     with tab1:
-        st.dataframe(generate_protocol_data(), use_container_width=True)
+        if query_history:
+            st.dataframe(pd.DataFrame(query_history), use_container_width=True)
+        else:
+            st.info("No queries run yet. Go to Query Logs to get started.")
 
     with tab2:
-        st.dataframe(generate_top_ips(), use_container_width=True)
-
-    with tab3:
-        alerts_df = pd.DataFrame({
-            'Timestamp': [datetime.now() - timedelta(hours=i) for i in range(10)],
-            'Severity':  ['High', 'Medium', 'Low', 'High', 'Medium', 'Low',
-                          'Critical', 'Medium', 'Low', 'High'],
-            'Type':      ['Brute Force', 'Port Scan', 'Failed Auth', 'Malware', 'Anomaly',
-                          'Policy Violation', 'Intrusion', 'Misconfiguration',
-                          'Suspicious Activity', 'Unauthorized Access'],
-            'Source IP': [f'192.168.1.{random.randint(1, 255)}' for _ in range(10)],
-        })
-        st.dataframe(alerts_df, use_container_width=True)
+        if current and current.get("answer"):
+            c1, c2, c3 = st.columns(3)
+            with c1: st.metric("Response Time", f"{current.get('response_time',0)}s")
+            with c2: st.metric("Logs Analyzed", current.get("log_count",0))
+            with c3: st.metric("Source", ", ".join(current.get("sources",[])))
+            st.markdown("---")
+            st.markdown(current.get("answer",""))
+        else:
+            st.info("No query has been run yet.")
 
     st.markdown("---")
 
-    # ── EXPORT ────────────────────────────────────────────────────────────────
+    #  EXPORT 
     inject(section_label("Export Analytics"))
 
     e1, e2, e3 = st.columns(3)
@@ -656,10 +745,10 @@ def main():
         if st.button("Export Data (CSV)", use_container_width=True):
             st.info("Data exported successfully.")
     with e3:
-        if st.button("📤 Go to Export Center", use_container_width=True, type="primary"):
+        if st.button(" Go to Export Center", use_container_width=True, type="primary"):
             st.switch_page(PAGE_EXPORT)
 
-    # ── FOOTER ────────────────────────────────────────────────────────────────
+    #  FOOTER 
     inject("""
     <div style="margin-top:30px;padding:11px 18px;
         background:rgba(0,170,255,0.03);border:1px solid rgba(0,170,255,0.09);

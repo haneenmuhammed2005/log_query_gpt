@@ -1,7 +1,4 @@
-"""
-ICS-LogQueryGPT Main Application
-Kripa - Week 1 Day 1
-"""
+# Home Page
 
 import streamlit as st
 import sys
@@ -14,16 +11,29 @@ from src.ui.auth.session import SessionManager
 
 st.set_page_config(
     page_title="ICS-LogQueryGPT",
-    page_icon="🔍",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# ── Custom styles ──────────────────────────────────────────────────────────────
+#  Custom styles 
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
+/* Hide ALL default Streamlit nav - no app/Login in sidebar */
+section[data-testid="stSidebarNav"],
+[data-testid="stSidebarNavLink"],
+[data-testid="stSidebarNavItems"],
+div[data-testid="stSidebarCollapseButton"],
+button[data-testid="collapsedControl"],
+button[data-testid="baseButton-headerNoPadding"],
+span[data-testid="stIconMaterial"],
+[data-testid="stSidebarHeader"],
+header[data-testid="stHeader"], footer, #MainMenu,
+div[data-testid="stToolbar"], div[data-testid="stDecoration"],
+div[data-testid="stStatusWidget"] { display: none !important; }
+
 html, body, [class*="css"], .stApp {
     font-family: 'Inter', 'Segoe UI', sans-serif !important;
     background-color: #0a0f1e !important;
@@ -286,8 +296,8 @@ hr { border-color: #1e293b !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# ── Auth check ─────────────────────────────────────────────────────────────────
-# ── Page path helper ───────────────────────────────────────────────────────────
+#  Auth check 
+#  Page path helper 
 PAGES_DIR = Path(__file__).parent / "pages"
 
 def _page(pattern: str) -> str:
@@ -314,7 +324,7 @@ def check_authentication():
         st.switch_page(PAGE_LOGIN)
         st.stop()
 
-# ── Main ───────────────────────────────────────────────────────────────────────
+#  Main 
 def main():
     check_authentication()
 
@@ -421,14 +431,20 @@ def main():
         </div>
         """, unsafe_allow_html=True)
 
-    # Logout button in sidebar
     with st.sidebar:
+        st.markdown("**Navigation**")
+        if st.button("Query Logs", use_container_width=True, key="nav_query"):
+            st.switch_page(PAGE_QUERY)
+        if st.button("Analytics", use_container_width=True, key="nav_analytics"):
+            st.switch_page(PAGE_ANALYTICS)
+        if st.button("Export", use_container_width=True, key="nav_export"):
+            st.switch_page(PAGE_EXPORT)
         st.markdown("---")
-        if st.button("🚪 Logout", use_container_width=True):
+        if st.button("Logout", use_container_width=True, key="nav_logout"):
             st.session_state.clear()
-            st.rerun()
+            st.switch_page(PAGE_LOGIN)
 
-    st.markdown('<p class="footer-caption">ICS-LogQueryGPT v1.0 &nbsp;|&nbsp; Powered by Ollama + Llama 3.1 &nbsp;|&nbsp; 100% Local Processing</p>', unsafe_allow_html=True)
+    st.markdown('<p class="footer-caption">ICS-LogQueryGPT v1.0 &nbsp;|&nbsp; Powered by Groq + Gemini Flash &nbsp;|&nbsp; AI-Powered Log Analysis</p>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()

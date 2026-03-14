@@ -1,8 +1,10 @@
-"""
-Query Logs page for ICS-LogQueryGPT
-Styled to match v3 HTML preview — Space Grotesk, #060d1f, orbs, shimmer title,
-glass cards, staggered animations, premium sidebar.
-"""
+import os
+from dotenv import load_dotenv
+load_dotenv()
+os.environ["HF_HOME"]                    = "D:/Projects/log_query_gpt/.cache/huggingface"
+os.environ["TRANSFORMERS_CACHE"]         = "D:/Projects/log_query_gpt/.cache/huggingface"
+os.environ["SENTENCE_TRANSFORMERS_HOME"] = "D:/Projects/log_query_gpt/.cache/sentence_transformers"
+
 
 import streamlit as st
 import streamlit.components.v1 as components
@@ -15,7 +17,8 @@ sys.path.insert(0, str(project_root))
 
 from src.ui.auth.session import SessionManager
 
-# ── Page path helper ───────────────────────────────────────────────────────────
+#  Page path helper 
+PAGE_HOME  = "app.py"
 PAGE_QUERY = "pages/1_Query_Logs.py"
 PAGE_ANALYTICS = "pages/2_Analytics.py"
 PAGE_EXPORT = "pages/3_Export.py"
@@ -23,25 +26,25 @@ PAGE_LOGIN = "pages/0_Login.py"
 
 st.set_page_config(
     page_title="Query Logs - ICS-LogQueryGPT",
-    page_icon="🔍",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# ── Helper ─────────────────────────────────────────────────────────────────────
+#  Helper 
 def inject(html: str):
     try:
         st.html(html)
     except AttributeError:
         st.markdown(html, unsafe_allow_html=True)
 
-# ── Global styles ──────────────────────────────────────────────────────────────
+#  Global styles 
 def inject_styles():
     inject("""
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 
-/* ══ Reset & base ══ */
+/*  Reset & base  */
 html, body, [class*="css"], .stApp {
     font-family: 'Space Grotesk', sans-serif !important;
     background: #060d1f !important;
@@ -49,7 +52,7 @@ html, body, [class*="css"], .stApp {
     -webkit-font-smoothing: antialiased;
 }
 
-/* ══ Animations ══ */
+/*  Animations  */
 @keyframes blink     { 0%,100%{opacity:1} 50%{opacity:0.1} }
 @keyframes floatorb  { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-24px) scale(1.05)} }
 @keyframes shimmer   { 0%{background-position:-300% center} 100%{background-position:300% center} }
@@ -58,13 +61,19 @@ html, body, [class*="css"], .stApp {
 @keyframes fadeLeft  { from{opacity:0;transform:translateX(-16px)} to{opacity:1;transform:translateX(0)} }
 @keyframes popIn     { from{opacity:0;transform:scale(0.92)} to{opacity:1;transform:scale(1)} }
 
-/* ══ Hide Streamlit chrome ══ */
+/* Hide ALL Streamlit chrome — kills keyboard_double, app, Login from sidebar */
 header[data-testid="stHeader"], footer, #MainMenu,
 div[data-testid="stToolbar"], div[data-testid="stDecoration"],
 div[data-testid="stStatusWidget"],
-div[data-testid="stSidebarCollapseButton"] { display:none !important; }
+div[data-testid="stSidebarCollapseButton"],
+section[data-testid="stSidebarNav"],
+div[data-testid="stSidebarNavItems"],
+[data-testid="stSidebarNavLink"],
+[data-testid="stSidebarHeader"],
+button[data-testid="baseButton-headerNoPadding"],
+span[data-testid="stIconMaterial"] { display:none !important; }
 
-/* ══ Ambient grid overlay ══ */
+/*  Ambient grid overlay  */
 .stApp::before {
     content: '';
     position: fixed; inset: 0; pointer-events: none; z-index: 0;
@@ -74,7 +83,7 @@ div[data-testid="stSidebarCollapseButton"] { display:none !important; }
     background-size: 52px 52px;
 }
 
-/* ══ SIDEBAR ══ */
+/*  SIDEBAR  */
 section[data-testid="stSidebar"] {
     background: linear-gradient(180deg, rgba(3,8,22,0.99) 0%, rgba(2,6,18,0.99) 100%) !important;
     border-right: 1px solid rgba(0,170,255,0.10) !important;
@@ -174,14 +183,14 @@ section[data-testid="stSidebar"] [data-testid="stCaptionContainer"] p {
 }
 section[data-testid="stSidebar"] hr { border-color: rgba(255,255,255,0.04) !important; }
 
-/* ══ Main block container ══ */
+/*  Main block container  */
 div.block-container {
     padding-top: 0 !important; padding-left: 2.5rem !important;
     padding-right: 2.5rem !important; padding-bottom: 2rem !important;
     max-width: 100% !important;
 }
 
-/* ══ Typography ══ */
+/*  Typography  */
 h1 {
     font-family: 'Space Grotesk', sans-serif !important;
     font-size: 40px !important; font-weight: 800 !important;
@@ -195,7 +204,7 @@ h2, h3, h4 {
     letter-spacing: 0.15em !important; margin-bottom: 10px !important;
 }
 
-/* ══ Text area ══ */
+/*  Text area  */
 div[data-testid="stTextArea"] label {
     font-size: 9px !important; font-weight: 700 !important;
     color: #3a5a80 !important; text-transform: uppercase !important;
@@ -218,7 +227,7 @@ textarea {
 }
 textarea::placeholder { color: #2e4f70 !important; }
 
-/* ══ Select box ══ */
+/*  Select box  */
 div[data-testid="stSelectbox"] label {
     font-size: 9px !important; font-weight: 700 !important;
     color: #3a5a80 !important; text-transform: uppercase !important;
@@ -236,7 +245,7 @@ div[data-testid="stSelectbox"] > div:focus-within {
     box-shadow: 0 0 0 3px rgba(0,170,255,0.08) !important;
 }
 
-/* ══ Buttons ══ */
+/*  Buttons  */
 div[data-testid="stButton"] > button[kind="primary"] {
     background: linear-gradient(135deg, #0040aa 0%, #0077cc 45%, #00aaff 100%) !important;
     border: none !important; border-radius: 9px !important;
@@ -269,7 +278,7 @@ div[data-testid="stButton"] button {
     font-size: 11.5px !important; border-radius: 9px !important;
 }
 
-/* ══ Metric cards ══ */
+/*  Metric cards  */
 div[data-testid="stMetric"] {
     background: rgba(255,255,255,0.022) !important;
     border: 1px solid rgba(255,255,255,0.065) !important;
@@ -294,7 +303,7 @@ div[data-testid="stMetricLabel"] {
     font-weight: 700 !important; font-family: 'Space Grotesk', sans-serif !important;
 }
 
-/* ══ Expander ══ */
+/*  Expander  */
 details {
     background: rgba(255,255,255,0.018) !important;
     border: 1px solid rgba(255,255,255,0.055) !important;
@@ -312,7 +321,7 @@ details summary {
     font-weight: 500 !important; padding: 13px 18px !important;
 }
 
-/* ══ Misc ══ */
+/*  Misc  */
 div[data-testid="stAlert"] { border-radius: 9px !important; font-size: 13px !important; font-family: 'Space Grotesk', sans-serif !important; }
 hr { border-color: rgba(255,255,255,0.05) !important; }
 div[data-testid="stSpinner"] p { font-family: 'Space Grotesk', sans-serif !important; font-size: 13px !important; color: #4a6a8a !important; }
@@ -320,7 +329,7 @@ div[data-testid="stSpinner"] p { font-family: 'Space Grotesk', sans-serif !impor
 </style>
 """)
 
-# ── Auth check ─────────────────────────────────────────────────────────────────
+#  Auth check 
 def check_authentication():
     if not st.session_state.get('authenticated', False):
         st.switch_page(PAGE_LOGIN)
@@ -334,7 +343,7 @@ def check_authentication():
         st.switch_page(PAGE_LOGIN)
         st.stop()
 
-# ── Session state ──────────────────────────────────────────────────────────────
+#  Session state 
 def init_state():
     defaults = {
         'query_history': [],
@@ -343,26 +352,94 @@ def init_state():
         'selected_mode': "Fast",
         'selected_time': "Last 24 hours",
         'show_history': False,
+        'selected_dataset': "HDFS",
+        'use_upload_mode': False,
+        'uploaded_index': None,
+        'uploaded_texts': None,
+        'uploaded_filename': None,
+        'uploaded_log_count': 0,
     }
     for k, v in defaults.items():
         if k not in st.session_state:
             st.session_state[k] = v
 
-# ── RAG system ─────────────────────────────────────────────────────────────────
+# ── Upload helpers ───────────────────────────────────────────────────────────
+def parse_uploaded_file(uploaded_file) -> list:
+    import pandas as pd
+    filename = uploaded_file.name.lower()
+    if filename.endswith('.csv'):
+        df = pd.read_csv(uploaded_file)
+        for col in ['log','message','msg','cleaned','original','content','text','log_message']:
+            if col in df.columns:
+                return df[col].dropna().astype(str).tolist()
+        return df.iloc[:, 0].dropna().astype(str).tolist()
+    elif filename.endswith('.txt'):
+        text = uploaded_file.read().decode('utf-8', errors='ignore')
+        return [l.strip() for l in text.splitlines() if l.strip()]
+    return []
+
+@st.cache_resource(show_spinner="Loading fast embedding model...")
+def get_minilm():
+    from sentence_transformers import SentenceTransformer
+    return SentenceTransformer('all-MiniLM-L6-v2')
+
+def build_temp_index(log_texts: list):
+    import faiss, numpy as np
+    model = get_minilm()
+    with st.spinner(f"Embedding {len(log_texts)} logs with fast model..."):
+        embeddings = model.encode(log_texts, batch_size=64, show_progress_bar=False)
+        embeddings = np.array(embeddings).astype('float32')
+    dimension = embeddings.shape[1]
+    index = faiss.IndexFlatL2(dimension)
+    index.add(embeddings)
+    return index, log_texts
+
+def run_upload_query(query: str, mode: str) -> dict:
+    import time, numpy as np
+    from src.rag_system.advanced_prompts_ollama import PromptEngineerOllama
+    from src.rag_system.basic_rag_ollama import BasicRAGOllama
+    top_k = {"Fast": 3, "Detailed": 5, "Deep Analysis": 10}.get(mode, 5)
+    t0 = time.time()
+    try:
+        index = st.session_state.uploaded_index
+        texts = st.session_state.uploaded_texts
+        model = get_minilm()
+        q_emb = model.encode([query])[0].astype('float32')
+        distances, indices = index.search(q_emb.reshape(1,-1), top_k)
+        results = [{'log_text': texts[i], 'similarity_score': float(1/(1+d))}
+                   for i, d in zip(indices[0], distances[0])]
+        prompt_eng = PromptEngineerOllama()
+        prompt = prompt_eng.create_analysis_prompt(query, results)
+        rag = BasicRAGOllama()
+        result = rag.generate_answer_from_prompt(prompt)
+        return {
+            "answer": result["answer"],
+            "sources": [st.session_state.uploaded_filename],
+            "log_count": top_k,
+            "response_time": round(time.time() - t0, 2),
+            "cached": False, "model": "groq/llama3"
+        }
+    except Exception as e:
+        return {"answer": f"Query failed: {e}", "sources": [],
+                "log_count": 0, "response_time": round(time.time()-t0, 2),
+                "cached": False, "model": "error"}
+
+# ── RAG system ────────────────────────────────────────────────────────────────
 @st.cache_resource(show_spinner="Loading AI system...")
-def load_rag_system():
+def load_rag_system(dataset: str = "HDFS"):
     try:
         from src.rag_system.integrated_rag_ollama import ICSLogQueryGPTOllama
+        base = "D:/Projects/log_query_gpt/data/vector_db"
         system = ICSLogQueryGPTOllama(
-            vector_db_path="D:/Projects/log_query_gpt/data/vector_db/HDFS_index.faiss",
-            metadata_path="D:/Projects/log_query_gpt/data/vector_db/HDFS_metadata.pkl"
+            vector_db_path=f"{base}/{dataset}_index.faiss",
+            metadata_path=f"{base}/{dataset}_metadata.pkl"
         )
         return system, None
     except Exception as e:
         return None, str(e)
 
-def run_rag_query(query: str, protocol: str, mode: str) -> dict:
-    system, error = load_rag_system()
+def run_rag_query(query: str, protocol: str, mode: str, dataset: str = "HDFS") -> dict:
+    system, error = load_rag_system(dataset)
     if error or system is None:
         return {
             "answer": f"**RAG system unavailable:** {error}\n\nMake sure Ollama is running:\n```\nollama serve\n```",
@@ -374,7 +451,7 @@ def run_rag_query(query: str, protocol: str, mode: str) -> dict:
     try:
         result = system.query(enriched, top_k=top_k)
         return {
-            "answer": result["answer"], "sources": ["HDFS_logs"],
+            "answer": result["answer"], "sources": [f"{dataset}_logs"],
             "log_count": top_k, "response_time": round(time.time() - t0, 2),
             "cached": False, "model": result.get("model", "llama3")
         }
@@ -385,9 +462,9 @@ def run_rag_query(query: str, protocol: str, mode: str) -> dict:
             "cached": False, "model": "error"
         }
 
-# ── Suggestions ────────────────────────────────────────────────────────────────
+#  Suggestions 
 
-# ── Response display ───────────────────────────────────────────────────────────
+#  Response display 
 def display_response(r):
     inject("""
     <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(0,170,255,0.55) 40%,rgba(0,229,255,0.4) 60%,transparent);margin-bottom:18px;"></div>
@@ -440,13 +517,13 @@ def display_response(r):
     with b1:
         if st.button("Save Response", key="btn_save"): st.success("Response saved.")
     with b2:
-        if st.button("📊 View Analytics", key="btn_analytics"):
+        if st.button(" View Analytics", key="btn_analytics"):
             st.switch_page(PAGE_ANALYTICS)
     with b3:
-        if st.button("📤 Export Results", key="btn_export"):
+        if st.button(" Export Results", key="btn_export"):
             st.switch_page(PAGE_EXPORT)
 
-# ── Main ───────────────────────────────────────────────────────────────────────
+#  Main 
 def main():
     check_authentication()
     init_state()
@@ -474,7 +551,7 @@ def main():
     </div>
     """)
 
-    # ── SIDEBAR ───────────────────────────────────────────────────────────────
+    #  SIDEBAR 
     with st.sidebar:
         inject("""
         <div style="height:2px;background:linear-gradient(90deg,transparent,#00aaff 50%,transparent);opacity:0.55;"></div>
@@ -502,6 +579,13 @@ def main():
 
         st.markdown("### Query Settings")
 
+        datasets = ["HDFS", "BGL"]
+        st.session_state.selected_dataset = st.selectbox(
+            "Dataset", datasets,
+            index=datasets.index(st.session_state.selected_dataset),
+            help="HDFS: Hadoop logs  BGL: BlueGene/L supercomputer logs"
+        )
+
         protocols = ["All Protocols", "SSH", "HTTP", "HTTPS", "FTP", "DNS", "SMTP", "Telnet"]
         st.session_state.selected_protocol = st.selectbox(
             "Protocol Filter", protocols,
@@ -520,30 +604,27 @@ def main():
             index=time_opts.index(st.session_state.selected_time)
         )
 
-        with st.expander("Advanced Options"):
-            st.checkbox("Include archived logs", value=False)
-            st.checkbox("Case sensitive search", value=False)
-            st.slider("Max results", 10, 1000, 100)
+
 
         inject('<div style="height:1px;background:rgba(255,255,255,0.04);margin:10px 0;"></div>')
 
-        st.markdown("### 🗺️ Navigation")
-        if st.button("🏠  Dashboard", use_container_width=True):
+        st.markdown("### Navigation")
+        if st.button("Home", use_container_width=True, key="nav_home"):
             st.switch_page("app.py")
-        if st.button("📊  Analytics", use_container_width=True):
+        if st.button("Analytics", use_container_width=True, key="nav_analytics"):
             st.switch_page(PAGE_ANALYTICS)
-        if st.button("📤  Export", use_container_width=True):
+        if st.button("Export", use_container_width=True, key="nav_export"):
             st.switch_page(PAGE_EXPORT)
 
         inject('<div style="height:1px;background:rgba(255,255,255,0.04);margin:10px 0;"></div>')
 
         # Logout
         inject('<div style="margin-top:8px;"></div>')
-        if st.button("🚪 Logout", use_container_width=True):
+        if st.button("Logout", use_container_width=True, key="nav_logout"):
             st.session_state.clear()
             st.switch_page(PAGE_LOGIN)
 
-        # ── Logged-in user + Access Roles ─────────────────────────────────────
+        #  Logged-in user + Access Roles 
         inject(f"""
         <div style="font-size:10px;color:#5a8ab0;margin:10px 4px 12px;
             font-family:'Space Grotesk',sans-serif;">
@@ -595,7 +676,7 @@ def main():
         </div>
         """)
 
-    # ── TOP ACCENT BAR ────────────────────────────────────────────────────────
+    #  TOP ACCENT BAR 
     inject("""
     <div style="height:2px;
         background:linear-gradient(90deg,transparent,#0088cc 20%,#00aaff 45%,#00e5ff 55%,#00aaff 80%,transparent);
@@ -603,7 +684,7 @@ def main():
         animation:glowpulse 3s ease-in-out infinite;"></div>
     """)
 
-    # ── LIVE BADGE ────────────────────────────────────────────────────────────
+    #  LIVE BADGE 
     inject("""
     <div style="display:inline-flex;align-items:center;gap:8px;
         background:rgba(0,170,255,0.06);border:1px solid rgba(0,170,255,0.2);
@@ -620,7 +701,7 @@ def main():
     </div>
     """)
 
-    # ── SHIMMER TITLE ─────────────────────────────────────────────────────────
+    #  SHIMMER TITLE 
     inject("""
     <div style="margin-bottom:8px;opacity:0;animation:fadeUp 0.6s 0.1s ease forwards;">
         <span style="font-size:40px;font-weight:800;letter-spacing:-2.2px;line-height:1.05;
@@ -643,6 +724,89 @@ def main():
 
     st.markdown("---")
 
+    # ── QUERY SOURCE TOGGLE ───────────────────────────────────────────────────
+    inject("""
+    <div style="font-size:9px;font-weight:700;color:#3a5a80;text-transform:uppercase;
+        letter-spacing:0.15em;margin-bottom:10px;font-family:'Space Grotesk',sans-serif;">
+        Query Source
+    </div>
+    """)
+    src_col1, src_col2 = st.columns(2)
+    with src_col1:
+        if st.button(
+            f"Dataset  ({st.session_state.selected_dataset})",
+            use_container_width=True,
+            type="primary" if not st.session_state.get("use_upload_mode", False) else "secondary",
+            key="btn_use_dataset"
+        ):
+            st.session_state.use_upload_mode = False
+            st.rerun()
+    with src_col2:
+        if st.button(
+            "Upload Your Own File",
+            use_container_width=True,
+            type="primary" if st.session_state.get("use_upload_mode", False) else "secondary",
+            key="btn_use_upload"
+        ):
+            st.session_state.use_upload_mode = True
+            st.rerun()
+
+    if st.session_state.get("use_upload_mode", False):
+        if st.session_state.uploaded_index is None:
+            inject("""
+            <div style="margin:14px 0 10px;padding:20px 24px;
+                background:rgba(0,170,255,0.04);border:1px dashed rgba(0,170,255,0.25);
+                border-radius:12px;">
+                <div style="font-size:12px;color:#4a6a8a;font-family:'Space Grotesk',sans-serif;">
+                    Upload a CSV (needs log/message column) or TXT (one log per line)
+                </div>
+            </div>
+            """)
+            uploaded_file = st.file_uploader(
+                "Choose your log file", type=["csv", "txt"],
+                key="main_uploader", label_visibility="collapsed"
+            )
+            if uploaded_file is not None:
+                log_texts = parse_uploaded_file(uploaded_file)
+                if not log_texts:
+                    st.error("Could not parse logs from this file.")
+                else:
+                    index, texts = build_temp_index(log_texts)
+                    st.session_state.uploaded_index    = index
+                    st.session_state.uploaded_texts    = texts
+                    st.session_state.uploaded_filename = uploaded_file.name
+                    st.session_state.uploaded_log_count = len(log_texts)
+                    st.rerun()
+        else:
+            inject(f"""
+            <div style="margin:14px 0 10px;padding:14px 20px;
+                background:rgba(0,170,255,0.06);border:1px solid rgba(0,170,255,0.25);
+                border-radius:12px;display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                    <div style="font-size:13px;font-weight:700;color:#a0c8e8;
+                        font-family:'Space Grotesk',sans-serif;">
+                        {st.session_state.uploaded_filename}
+                    </div>
+                    <div style="font-size:10px;color:#3a5a7a;font-family:'Space Grotesk',sans-serif;">
+                        {st.session_state.uploaded_log_count:,} logs indexed and ready
+                    </div>
+                </div>
+                <span style="font-size:10px;font-weight:700;color:#00aaff;
+                    background:rgba(0,170,255,0.1);border:1px solid rgba(0,170,255,0.3);
+                    border-radius:6px;padding:3px 10px;font-family:'Space Grotesk',sans-serif;">
+                    READY
+                </span>
+            </div>
+            """)
+            if st.button("Remove file and upload a new one", key="clear_uploaded_main"):
+                st.session_state.uploaded_index = None
+                st.session_state.uploaded_texts = None
+                st.session_state.uploaded_filename = None
+                st.session_state.uploaded_log_count = 0
+                st.rerun()
+
+    st.markdown("---")
+
     # ── QUERY INPUT ROW ───────────────────────────────────────────────────────
     col_q, col_a = st.columns([3, 1])
 
@@ -662,20 +826,30 @@ def main():
         """)
         if st.button("Analyze", type="primary", use_container_width=True):
             if query.strip():
-                with st.spinner("Analyzing your logs..."):
-                    result = run_rag_query(
-                        query,
-                        st.session_state.selected_protocol,
-                        st.session_state.selected_mode
-                    )
-                    st.session_state.current_results = result
-                    st.session_state.query_history.append({
-                        'query': query,
-                        'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        'protocol': st.session_state.selected_protocol,
-                        'mode': st.session_state.selected_mode,
-                    })
-                st.rerun()
+                if st.session_state.get("use_upload_mode") and st.session_state.uploaded_index is None:
+                    st.warning("Please upload a log file first.")
+                else:
+                    with st.spinner("Analyzing your logs..."):
+                        if st.session_state.get("use_upload_mode") and st.session_state.uploaded_index is not None:
+                            result = run_upload_query(query, st.session_state.selected_mode)
+                            src_label = st.session_state.uploaded_filename
+                        else:
+                            result = run_rag_query(
+                                query,
+                                st.session_state.selected_protocol,
+                                st.session_state.selected_mode,
+                                st.session_state.selected_dataset
+                            )
+                            src_label = st.session_state.selected_dataset
+                        st.session_state.current_results = result
+                        st.session_state.query_history.append({
+                            'query': query,
+                            'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            'protocol': st.session_state.selected_protocol,
+                            'mode': st.session_state.selected_mode,
+                            'source': src_label,
+                        })
+                    st.rerun()
             else:
                 st.warning("Please enter a query.")
 
@@ -689,12 +863,12 @@ def main():
 
 
 
-    # ── AI RESPONSE ───────────────────────────────────────────────────────────
+    #  AI RESPONSE 
     if st.session_state.current_results:
         st.markdown("---")
         display_response(st.session_state.current_results)
 
-    # ── RECENT QUERIES ────────────────────────────────────────────────────────
+    #  RECENT QUERIES 
     if st.session_state.show_history and st.session_state.query_history:
         st.markdown("---")
         inject("""
@@ -722,7 +896,7 @@ def main():
                     st.session_state.query_input = item['query']
                     st.rerun()
 
-    # ── FOOTER ────────────────────────────────────────────────────────────────
+    #  FOOTER 
     inject("""
     <div style="margin-top:30px;padding:11px 18px;
         background:rgba(0,170,255,0.03);
