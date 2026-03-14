@@ -26,7 +26,7 @@ PAGE_LOGIN = "pages/0_Login.py"
 
 st.set_page_config(
     page_title="Query Logs - ICS-LogQueryGPT",
-    page_icon="",
+    page_icon="🛡",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -340,6 +340,7 @@ def check_authentication():
     session_manager = SessionManager()
     if not session_manager.validate_session(st.session_state.get('session_token')):
         st.session_state.clear()
+        st.session_state["session_expired"] = True
         st.switch_page(PAGE_LOGIN)
         st.stop()
 
@@ -624,22 +625,30 @@ def main():
             st.session_state.clear()
             st.switch_page(PAGE_LOGIN)
 
-        #  Logged-in user + Access Roles 
-        inject(f"""
-        <div style="font-size:10px;color:#5a8ab0;margin:10px 4px 12px;
-            font-family:'Space Grotesk',sans-serif;">
-            Logged in as:
-            <span style="color:#8ab0d0;font-weight:600;">
-                {st.session_state.get('username', 'admin')}
-            </span>
-        </div>
+        # ── Logged-in user + Access Roles (dynamic) ─────────────────────────
+        _username = st.session_state.get('username', 'user')
+        _role     = st.session_state.get('user_role', 'analyst').lower()
 
-        <div style="font-size:9px;font-weight:700;color:#3a5a7a;text-transform:uppercase;
-            letter-spacing:0.15em;margin-bottom:8px;margin-left:4px;
-            font-family:'Space Grotesk',sans-serif;">Access Roles</div>
+        # Map role to display label
+        _role_map = {
+            'admin':    'Admin',
+            'analyst':  'Analyst',
+            'viewer':   'Read-Only',
+        }
+        _role_label = _role_map.get(_role, _role.title())
 
-        <div style="display:flex;flex-direction:column;gap:5px;margin:0 4px 16px;">
+        # Build role rows dynamically
+        _all_roles = [
+            ('Admin',            'admin'),
+            ('Analyst',          'analyst'),
+            ('Read-Only',        'viewer'),
+        ]
 
+        _rows_html = ""
+        for label, key in _all_roles:
+            is_active = (_role == key)
+            if is_active:
+                _rows_html += f"""
             <div style="display:flex;align-items:center;justify-content:space-between;
                 background:rgba(0,170,255,0.09);border:1px solid rgba(0,170,255,0.25);
                 border-radius:7px;padding:6px 10px;">
@@ -647,32 +656,35 @@ def main():
                     <span style="width:6px;height:6px;border-radius:50%;background:#00aaff;
                         box-shadow:0 0 8px rgba(0,170,255,0.8);display:inline-block;"></span>
                     <span style="font-size:11.5px;font-weight:600;color:#a0c8e8;
-                        font-family:'Space Grotesk',sans-serif;">Admin</span>
+                        font-family:'Space Grotesk',sans-serif;">{label}</span>
                 </div>
                 <span style="font-size:9px;background:rgba(0,170,255,0.15);
                     border:1px solid rgba(0,170,255,0.3);border-radius:4px;
-                    padding:1px 6px;color:#00aaff;font-weight:700;letter-spacing:0.05em;
+                    padding:1px 6px;color:#00aaff;font-weight:700;
                     font-family:'Space Grotesk',sans-serif;">ACTIVE</span>
-            </div>
-
+            </div>"""
+            else:
+                _rows_html += f"""
             <div style="display:flex;align-items:center;gap:7px;
                 background:rgba(255,255,255,0.018);border:1px solid rgba(255,255,255,0.055);
                 border-radius:7px;padding:6px 10px;">
                 <span style="width:6px;height:6px;border-radius:50%;
                     background:#2a4a6a;display:inline-block;"></span>
                 <span style="font-size:11.5px;font-weight:500;color:#4a6a8a;
-                    font-family:'Space Grotesk',sans-serif;">Security Operator</span>
-            </div>
+                    font-family:'Space Grotesk',sans-serif;">{label}</span>
+            </div>"""
 
-            <div style="display:flex;align-items:center;gap:7px;
-                background:rgba(255,255,255,0.018);border:1px solid rgba(255,255,255,0.055);
-                border-radius:7px;padding:6px 10px;">
-                <span style="width:6px;height:6px;border-radius:50%;
-                    background:#2a4a6a;display:inline-block;"></span>
-                <span style="font-size:11.5px;font-weight:500;color:#4a6a8a;
-                    font-family:'Space Grotesk',sans-serif;">Read-Only</span>
-            </div>
-
+        inject(f"""
+        <div style="font-size:10px;color:#5a8ab0;margin:10px 4px 12px;
+            font-family:'Space Grotesk',sans-serif;">
+            Logged in as:
+            <span style="color:#8ab0d0;font-weight:600;">{_username}</span>
+        </div>
+        <div style="font-size:9px;font-weight:700;color:#3a5a7a;text-transform:uppercase;
+            letter-spacing:0.15em;margin-bottom:8px;margin-left:4px;
+            font-family:'Space Grotesk',sans-serif;">Access Roles</div>
+        <div style="display:flex;flex-direction:column;gap:5px;margin:0 4px 16px;">
+            {_rows_html}
         </div>
         """)
 
@@ -842,6 +854,35 @@ def main():
                             )
                             src_label = st.session_state.selected_dataset
                         st.session_state.current_results = result
+
+                        # ── Alert detection ───────────────────────────────
+                        try:
+                            from src.ui.utils.alert_system import detect_severity, send_alert_email
+                            severity = detect_severity(
+                                result.get("answer", ""),
+                                query
+                            )
+                            if severity:
+                                recipient = os.environ.get("ALERT_RECIPIENT", "haneenmuhammed2005@gmail.com")
+                                ok, msg = send_alert_email(
+                                    query=query,
+                                    answer=result.get("answer", ""),
+                                    severity=severity,
+                                    dataset=src_label,
+                                    response_time=result.get("response_time", 0),
+                                    username=st.session_state.get("username", "user"),
+                                    recipient_email=recipient
+                                )
+                                st.session_state["last_alert"] = {
+                                    "severity": severity,
+                                    "email_sent": ok,
+                                    "email_msg": msg,
+                                }
+                            else:
+                                st.session_state.pop("last_alert", None)
+                        except Exception as ae:
+                            st.session_state.pop("last_alert", None)
+
                         st.session_state.query_history.append({
                             'query': query,
                             'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -863,10 +904,60 @@ def main():
 
 
 
-    #  AI RESPONSE 
+    # ── ALERT BANNER ─────────────────────────────────────────────────────────
+    alert = st.session_state.get("last_alert")
+    if alert:
+        severity     = alert.get("severity", "WARNING")
+        email_sent   = alert.get("email_sent", False)
+        email_msg    = alert.get("email_msg", "")
+        color        = "#ff4444" if severity == "CRITICAL" else "#ffaa00"
+        bg_color     = "rgba(255,68,68,0.08)" if severity == "CRITICAL" else "rgba(255,170,0,0.08)"
+        border_color = "rgba(255,68,68,0.4)"  if severity == "CRITICAL" else "rgba(255,170,0,0.4)"
+        email_badge  = "Email sent" if email_sent else "Email failed"
+        email_color  = "#00c864" if email_sent else "#f87171"
+        inject(f"""
+        <div style="margin-bottom:16px;padding:16px 22px;
+            background:{bg_color};border:1px solid {border_color};
+            border-left:4px solid {color};border-radius:10px;">
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                <span style="width:10px;height:10px;border-radius:50%;background:{color};
+                    box-shadow:0 0 12px {color};display:inline-block;flex-shrink:0;"></span>
+                <span style="font-size:12px;font-weight:800;color:{color};
+                    text-transform:uppercase;letter-spacing:0.1em;
+                    font-family:'Space Grotesk',sans-serif;">{severity} ALERT DETECTED</span>
+                <span style="font-size:11px;color:#5a7a9a;font-family:'Space Grotesk',sans-serif;">
+                    Critical keywords found in AI response
+                </span>
+                <span style="font-size:10px;font-weight:700;color:{email_color};
+                    background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+                    padding:2px 10px;border-radius:4px;font-family:'Space Grotesk',sans-serif;">
+                    {email_badge} — {email_msg}
+                </span>
+            </div>
+        </div>
+        """)
+
+    #  AI RESPONSE
     if st.session_state.current_results:
-        st.markdown("---")
-        display_response(st.session_state.current_results)
+        result = st.session_state.current_results
+        answer = result.get("answer", "").strip()
+        if not answer or len(answer) < 10:
+            inject("""
+            <div style="margin-top:16px;padding:28px;text-align:center;
+                background:rgba(255,255,255,0.018);border:1px dashed rgba(255,255,255,0.08);
+                border-radius:12px;">
+                <div style="font-size:20px;margin-bottom:10px;">🔍</div>
+                <div style="font-size:14px;font-weight:700;color:#5a7a9a;margin-bottom:6px;
+                    font-family:'Space Grotesk',sans-serif;">No results found</div>
+                <div style="font-size:12px;color:#3a5a7a;font-family:'Space Grotesk',sans-serif;">
+                    The AI could not find relevant log entries for your query.<br>
+                    Try rephrasing your question or switching to a different dataset.
+                </div>
+            </div>
+            """)
+        else:
+            st.markdown("---")
+            display_response(result)
 
     #  RECENT QUERIES 
     if st.session_state.show_history and st.session_state.query_history:

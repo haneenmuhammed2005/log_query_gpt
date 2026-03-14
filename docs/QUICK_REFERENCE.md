@@ -1,123 +1,159 @@
-# ⚡ Quick Reference Guide
+# Quick Reference
 
 One-page cheat sheet for ICS-LogQueryGPT.
 
 ---
 
-## 🚀 Quick Start Commands
+## Launch
 
 ```bash
-# Setup (first time)
-git clone https://github.com/haneenmuhammed2005/ICS-LogQueryGPT.git
-cd ICS-LogQueryGPT
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-ollama pull llama3.1:8b
+# Activate environment
+venv\Scripts\activate        # Windows
+source venv/bin/activate     # Linux/Mac
 
-# Prepare data
-python src/preprocessing/download_data.py
-python src/preprocessing/process_all_data.py
-python src/embeddings/enhanced_embedder.py
+# Run app
+streamlit run src/ui/app.py
+```
 
-# Launch
-ollama serve &  # Start Ollama
-streamlit run src/ui/enhanced_app_ollama.py
+Open: **http://localhost:8501**
+
+---
+
+## Default Login
+
+| Username | Password | Role |
+|----------|----------|------|
+| `admin` | `admin123` | Admin — goes to Admin Dashboard |
+| any signup | your password | Analyst — goes to Home |
+
+---
+
+## Example Queries
+
+**HDFS Dataset:**
+```
+Show all failed login attempts
+Are there any brute force attacks?
+Which IP addresses have the most failed connections?
+Show me all blocked connections
+What are the most common error types?
+Are there any suspicious patterns?
+Show all critical severity events
+```
+
+**BGL Dataset:**
+```
+Are there any hardware failures?
+Show all fatal errors
+What caused the most system crashes?
+Are there any memory failures?
+Show me all critical system alerts
+Which nodes had the most errors?
+Are there any kernel panic events?
+```
+
+**Upload your own file (CSV or TXT):**
+```
+Show all failed login attempts
+Which users have the most authentication failures?
+Are there any warning level events?
 ```
 
 ---
 
-## 💡 Example Queries
+## Query Modes
 
-| Query Type | Example |
-|------------|---------|
-| **Security** | "Show authentication failures" |
-| **Protocol** | "Find Modbus communication errors" |
-| **Troubleshooting** | "Why did device 5 fail?" |
-| **Analysis** | "What caused the system outage?" |
-| **Follow-up** | "Which IP was it?" (after previous query) |
+| Mode | Response Time | Use When |
+|------|--------------|----------|
+| Fast | 1–3s | Quick check, exploring |
+| Detailed | 3–6s | Investigating an issue |
+| Deep Analysis | 5–10s | Full audit, thorough review |
 
 ---
 
-## ⚙️ Common Settings
+## Key Files
 
-| Setting | Recommended | Fast | Accurate |
-|---------|-------------|------|----------|
-| **Model** | llama3.1:8b | 8b | 70b |
-| **Num Logs** | 5 | 3 | 10 |
-| **Temperature** | 0.7 | 0.3 | 0.5 |
-| **Min Similarity** | 0.3 | 0.5 | 0.2 |
-
----
-
-## 🔧 Troubleshooting Commands
-
-```bash
-# Check Ollama
-curl http://localhost:11434/api/tags
-ollama list
-
-# Test system
-python tests/test_complete_system.py
-
-# Restart services
-pkill -f ollama && ollama serve &
-pkill -f streamlit
-
-# Rebuild data
-rm -rf data/embeddings/*
-python src/embeddings/enhanced_embedder.py
+```
+src/ui/app.py                     Home page
+src/ui/pages/0_Login.py           Login / Sign Up
+src/ui/pages/1_Query_Logs.py      Main query interface
+src/ui/pages/2_Analytics.py       Session analytics
+src/ui/pages/3_Export.py          Export center
+src/ui/pages/5_Admin.py           Admin dashboard
+src/ui/pages/6_Benchmark.py       Metrics (admin only)
+src/ui/auth/user_manager.py       User management
+src/ui/auth/session.py            Session management
+src/ui/utils/alert_system.py      Email alert system
+src/rag_system/basic_rag_ollama.py    Groq + Gemini LLM
+data/vector_db/HDFS_index.faiss   HDFS FAISS index
+data/vector_db/BGL_index.faiss    BGL FAISS index
+build_bgl_index.py                Run once to build BGL index
+.env                              API keys (never commit)
 ```
 
 ---
 
-## 📊 Performance Targets
+## Environment Variables (.env)
 
-| Metric | Target | Actual |
-|--------|--------|--------|
-| Search | <100ms | 50-100ms |
-| Generation (8B) | <10s | 3-8s |
-| Embedding | >100/s | 120/s |
-| Accuracy | >90% | 95%+ |
-
----
-
-## 🔑 Key Files
-
-```
-ICS-LogQueryGPT/
-├── src/ui/enhanced_app_ollama.py       # Main UI
-├── src/rag_system/conversational_rag_ollama.py  # RAG logic
-├── src/embeddings/log_embedder.py      # BERT embeddings
-├── src/vector_db/optimized_search.py   # Vector search
-├── tests/test_complete_system.py       # Test suite
-└── requirements.txt                     # Dependencies
+```env
+GROQ_API_KEY=gsk_...
+GOOGLE_API_KEY=AIza...
+ALERT_EMAIL=your@gmail.com
+ALERT_EMAIL_PASSWORD=abcdabcdabcdabcd
+ALERT_RECIPIENT=recipient@gmail.com
 ```
 
 ---
 
-## 📞 Quick Help
+## Roles and Access
 
-| Issue | Solution |
-|-------|----------|
-| **Ollama not found** | `ollama serve` |
-| **Model missing** | `ollama pull llama3.1:8b` |
-| **Slow responses** | Use 8B model, reduce logs |
-| **File not found** | Run data pipeline scripts |
-| **Import errors** | `pip install -r requirements.txt` |
-
-**Full docs**: `docs/TROUBLESHOOTING.md`
-
----
-
-## 🎯 Success Checklist
-
-- [ ] Ollama running (`curl http://localhost:11434/api/tags`)
-- [ ] Model downloaded (`ollama list`)
-- [ ] Data processed (`ls data/embeddings/`)
-- [ ] Tests pass (`python tests/test_complete_system.py`)
-- [ ] UI accessible (http://localhost:8501)
+| Page | Admin | Analyst | Viewer |
+|------|-------|---------|--------|
+| Home | ✅ | ✅ | ✅ |
+| Query Logs | ✅ | ✅ | ✅ |
+| Analytics | ✅ | ✅ | ✅ |
+| Export | ✅ | ✅ | ✅ |
+| Admin Dashboard | ✅ | ❌ | ❌ |
+| Benchmark | ✅ | ❌ | ❌ |
 
 ---
 
-**Version**: 1.0.0 | [Full Documentation](docs/)
+## Benchmark Results (Reference)
+
+| Metric | Score | Meaning |
+|--------|-------|---------|
+| Recall@5 | 1.000 | Perfect retrieval |
+| MRR | 1.000 | Perfect ranking |
+| Precision@5 | 0.400 | Good |
+| ROUGE-1 | ~0.092 | Normal for RAG |
+| Avg Time | ~7.4s | Acceptable |
+
+---
+
+## Quick Fixes
+
+| Problem | Fix |
+|---------|-----|
+| App won't start | Activate venv, run `pip install -r requirements.txt` |
+| API error | Check `.env` file has all 5 keys |
+| Index not found | Run `python build_bgl_index.py` |
+| Email not sending | Use Gmail App Password, not regular password |
+| Forgot admin password | Delete `data/users.db`, restart app |
+| Analytics empty | Run queries first, then refresh |
+| Export shows sample | Run queries first in this session |
+| Benchmark "access denied" | Must be logged in as admin |
+
+---
+
+## Alert Keywords (Triggers Email)
+
+```
+attack, brute force, unauthorized, authentication failure,
+failed login, blocked, critical, malware, exploit, suspicious,
+breach, compromised, privilege escalation, root access, fatal,
+kernel panic, memory corruption, hardware failure, denial of service
+```
+
+---
+
+**Full docs:** `docs/` folder | **Version:** 1.0.0 | **March 2026**

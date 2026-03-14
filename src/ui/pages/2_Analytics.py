@@ -21,7 +21,7 @@ PAGE_LOGIN = "pages/0_Login.py"
 
 st.set_page_config(
     page_title="Analytics - ICS-LogQueryGPT",
-    page_icon="",
+    page_icon="🛡",
     layout="wide"
 )
 
@@ -497,56 +497,56 @@ def main():
             st.session_state.clear()
             st.switch_page(PAGE_LOGIN)
 
-        inject(f"""
-        <div style="font-size:10px;font-weight:600;color:#7aa0c0;margin:10px 4px 12px;
-            font-family:'Space Grotesk',sans-serif;">
-            Logged in as:
-            <span style="color:#a0c8e8;font-weight:700;">
-                {st.session_state.get('username', 'admin')}
-            </span>
-        </div>
 
-        <div style="font-size:9px;font-weight:800;color:#5a7a9a;text-transform:uppercase;
-            letter-spacing:0.15em;margin-bottom:8px;margin-left:4px;
-            font-family:'Space Grotesk',sans-serif;">Access Roles</div>
-
-        <div style="display:flex;flex-direction:column;gap:5px;margin:0 4px 16px;">
-
+        # ── Dynamic Access Roles ──────────────────────────────────────────
+        _username = st.session_state.get('username', 'user')
+        _role     = st.session_state.get('user_role', 'analyst').lower()
+        _role_map = {'admin': 'Admin', 'analyst': 'Analyst', 'viewer': 'Read-Only'}
+        _all_roles = [('Admin','admin'), ('Analyst','analyst'), ('Read-Only','viewer')]
+        _rows_html = ""
+        for label, key in _all_roles:
+            is_active = (_role == key)
+            if is_active:
+                _rows_html += f"""
             <div style="display:flex;align-items:center;justify-content:space-between;
                 background:rgba(0,170,255,0.09);border:1px solid rgba(0,170,255,0.25);
                 border-radius:7px;padding:6px 10px;">
                 <div style="display:flex;align-items:center;gap:7px;">
                     <span style="width:6px;height:6px;border-radius:50%;background:#00aaff;
                         box-shadow:0 0 8px rgba(0,170,255,0.8);display:inline-block;"></span>
-                    <span style="font-size:11.5px;font-weight:700;color:#c0ddf0;
-                        font-family:'Space Grotesk',sans-serif;">Admin</span>
+                    <span style="font-size:11.5px;font-weight:600;color:#a0c8e8;
+                        font-family:'Space Grotesk',sans-serif;">{label}</span>
                 </div>
                 <span style="font-size:9px;background:rgba(0,170,255,0.15);
                     border:1px solid rgba(0,170,255,0.3);border-radius:4px;
-                    padding:1px 6px;color:#00aaff;font-weight:800;letter-spacing:0.05em;
+                    padding:1px 6px;color:#00aaff;font-weight:700;
                     font-family:'Space Grotesk',sans-serif;">ACTIVE</span>
-            </div>
-
+            </div>"""
+            else:
+                _rows_html += f"""
             <div style="display:flex;align-items:center;gap:7px;
                 background:rgba(255,255,255,0.018);border:1px solid rgba(255,255,255,0.055);
                 border-radius:7px;padding:6px 10px;">
                 <span style="width:6px;height:6px;border-radius:50%;
                     background:#2a4a6a;display:inline-block;"></span>
-                <span style="font-size:11.5px;font-weight:600;color:#6a8aaa;
-                    font-family:'Space Grotesk',sans-serif;">Security Operator</span>
-            </div>
+                <span style="font-size:11.5px;font-weight:500;color:#4a6a8a;
+                    font-family:'Space Grotesk',sans-serif;">{label}</span>
+            </div>"""
 
-            <div style="display:flex;align-items:center;gap:7px;
-                background:rgba(255,255,255,0.018);border:1px solid rgba(255,255,255,0.055);
-                border-radius:7px;padding:6px 10px;">
-                <span style="width:6px;height:6px;border-radius:50%;
-                    background:#2a4a6a;display:inline-block;"></span>
-                <span style="font-size:11.5px;font-weight:600;color:#6a8aaa;
-                    font-family:'Space Grotesk',sans-serif;">Read-Only</span>
-            </div>
-
+        inject(f"""
+        <div style="font-size:10px;color:#5a8ab0;margin:10px 4px 12px;
+            font-family:'Space Grotesk',sans-serif;">
+            Logged in as:
+            <span style="color:#8ab0d0;font-weight:600;">{_username}</span>
+        </div>
+        <div style="font-size:9px;font-weight:700;color:#3a5a7a;text-transform:uppercase;
+            letter-spacing:0.15em;margin-bottom:8px;margin-left:4px;
+            font-family:'Space Grotesk',sans-serif;">Access Roles</div>
+        <div style="display:flex;flex-direction:column;gap:5px;margin:0 4px 16px;">
+            {_rows_html}
         </div>
         """)
+
 
     #  TOP ACCENT BAR 
     inject("""

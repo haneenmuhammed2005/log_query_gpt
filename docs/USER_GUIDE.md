@@ -1,587 +1,312 @@
-# 📘 ICS-LogQueryGPT - User Guide
+# User Guide
 
-## 🎯 Overview
-
-ICS-LogQueryGPT is a production-ready system for analyzing Industrial Control System (ICS) logs using advanced AI. It combines:
-
-- **Local LLM**: Llama 3.1 via Ollama (100% private)
-- **Vector Search**: FAISS for fast similarity search
-- **Smart Embeddings**: BERT for semantic understanding
-- **Protocol Awareness**: Detects ICS protocols (Modbus, DNP3, SNMP, SSH, HTTP, FTP, Telnet, BACnet)
-- **Conversational AI**: Memory-enabled chat interface
+Complete usage instructions for ICS-LogQueryGPT.
 
 ---
 
-## 🚀 Quick Start
+## Table of Contents
 
-### 1. Prerequisites
-
-**System Requirements:**
-- **CPU**: 4+ cores recommended
-- **RAM**: 16GB minimum, 32GB recommended for 70B model
-- **Storage**: 10GB free space
-- **GPU**: Optional (speeds up inference significantly)
-- **OS**: Windows 10/11, Linux, or macOS
-
-**Software:**
-- Python 3.8+
-- Ollama
-- Git
-
-### 2. Installation
-
-```bash
-# Clone repository
-git clone https://github.com/yourusername/ICS-LogQueryGPT.git
-cd ICS-LogQueryGPT
-
-# Create virtual environment
-python -m venv venv
-
-# Activate virtual environment
-# Windows:
-venv\Scripts\activate
-# Linux/Mac:
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### 3. Setup Ollama
-
-**Windows:**
-1. Download from https://ollama.com/download
-2. Run the installer
-3. Ollama will start automatically
-
-**Linux/Mac:**
-```bash
-curl -fsSL https://ollama.com/install.sh | sh
-```
-
-**Pull Llama 3.1 Model:**
-```bash
-# Recommended: 8B model (faster, runs on most hardware)
-ollama pull llama3.1:8b
-
-# Optional: 70B model (more accurate, requires GPU)
-ollama pull llama3.1:70b
-```
-
-**Verify Installation:**
-```bash
-ollama list
-# Should show llama3.1:8b in the list
-```
-
-### 4. Prepare Data
-
-```bash
-# Download and process logs
-python src/preprocessing/download_data.py
-python src/preprocessing/process_all_data.py
-
-# Create embeddings (this may take 5-10 minutes)
-python src/embeddings/enhanced_embedder.py
-
-# Build optimized vector index
-python src/vector_db/optimized_search.py
-```
-
-### 5. Launch Application
-
-**Terminal 1 - Start Ollama (if not already running):**
-```bash
-ollama serve
-```
-
-**Terminal 2 - Launch Web Interface:**
-```bash
-streamlit run src/ui/enhanced_app_ollama.py
-```
-
-**Access the application at:** http://localhost:8501
+- [Getting Started](#getting-started)
+- [Login and Sign Up](#login-and-sign-up)
+- [Home Page](#home-page)
+- [Query Logs](#query-logs)
+- [Analytics](#analytics)
+- [Export Center](#export-center)
+- [Admin Dashboard](#admin-dashboard)
+- [Benchmark](#benchmark)
+- [Alert System](#alert-system)
 
 ---
 
-## 💡 Usage Guide
+## Getting Started
 
-### Basic Query Examples
-
-#### **Authentication Issues:**
-```
-Show me authentication failures
-Find SSH login errors
-Who tried to log in from suspicious IPs?
-List all failed authentication attempts
-```
-
-#### **Protocol-Specific Queries:**
-```
-Find Modbus communication errors
-Show DNP3 timeout issues
-What SNMP traps occurred?
-List all HTTP request failures
-Show BACnet device offline events
-```
-
-#### **Security Analysis:**
-```
-Are there any security concerns?
-Identify suspicious patterns in the logs
-Show critical security events
-What unauthorized access attempts occurred?
-Analyze potential security breaches
-```
-
-#### **Troubleshooting:**
-```
-Why did device 5 fail?
-Explain this Modbus error
-What caused the timeout on the outstation?
-Debug the communication failure
-Root cause analysis for system errors
-```
-
-### Advanced Features
-
-#### **1. Protocol Filtering**
-- Select specific protocols from the sidebar
-- Focuses search on relevant logs only
-- Available protocols: Modbus, DNP3, SNMP, SSH, HTTP, FTP, Telnet, BACnet
-- Improves answer relevance and speed
-
-#### **2. Severity Filtering**
-- Filter by: Critical, High, Medium, Low, Info
-- Quickly identify urgent issues
-- Prioritize investigation based on severity
-- Combine with protocol filters for precise queries
-
-#### **3. Analysis Modes**
-
-**Analysis Mode:**
-- Detailed step-by-step examination
-- Breaks down complex issues
-- Best for: Understanding what happened
-
-**Summary Mode:**
-- Quick overview of events
-- Condensed information
-- Best for: Getting the big picture
-
-**Security Mode:**
-- Security-focused analysis
-- Identifies threats and vulnerabilities
-- Best for: Security audits and incident response
-
-**Troubleshooting Mode:**
-- Problem diagnosis and solutions
-- Root cause analysis
-- Best for: Fixing issues and preventing recurrence
-
-#### **4. Conversation Memory**
-
-The system remembers your conversation context:
+After running `streamlit run src/ui/app.py`, open your browser at:
 
 ```
-You: "Show me authentication failures"
-System: [Lists 5 authentication failures]
-
-You: "Which IP address was most frequent?"
-System: [Analyzes the previous results and identifies the IP]
-
-You: "Is this a security concern?"
-System: [Provides security analysis based on the full context]
+http://localhost:8501
 ```
 
-**Export Conversations:**
-- Click "Export Conversation" to save history
-- JSON format for easy review
-- Includes all questions, answers, and metadata
+You will see the Login page. Use the default admin credentials or sign up for a new account.
 
 ---
 
-## ⚙️ Configuration
+## Login and Sign Up
 
-### Retrieval Settings
+### Login
 
-**Number of Logs to Retrieve (1-20)**
-- **More logs** = Better context, slower responses
-- **Fewer logs** = Faster responses, may miss context
-- **Recommended**: 5-7 logs
-- **Default**: 5 logs
+1. Enter your username and password
+2. Click **Sign In**
+3. Admin users are redirected to the Admin Dashboard
+4. All other users are redirected to the Home page
 
-**Minimum Similarity Score (0.0-1.0)**
-- **Higher** (0.7-1.0) = Stricter matching, more relevant
-- **Lower** (0.3-0.5) = Broader results, may include less relevant logs
-- **Recommended**: 0.3-0.5 for exploratory queries
-- **Default**: 0.3
+### Sign Up
 
-### Generation Settings
+1. Click the **Sign Up** tab
+2. Enter a username (minimum 3 characters)
+3. Enter a password (minimum 6 characters)
+4. Click **Create Account**
+5. Your account is created with the `analyst` role
 
-**Temperature (0.0-1.0)**
-- **0.0-0.3**: Focused, deterministic, factual
-- **0.4-0.7**: Balanced (recommended for most use cases)
-- **0.8-1.0**: Creative, diverse, less predictable
-- **Default**: 0.7
+### Default Credentials
 
-**Model Selection**
-- **llama3.1:8b**: Fast, works on most hardware (4GB+ RAM)
-- **llama3.1:70b**: More accurate, requires powerful GPU (40GB+ VRAM)
-- **Recommendation**: Start with 8B, upgrade to 70B if accuracy is critical
+| Username | Password | Role |
+|----------|----------|------|
+| `admin` | `admin123` | Admin |
 
 ---
 
-## 🔧 Troubleshooting
+## Home Page
 
-### Common Issues
+The home page shows a summary of your current session:
 
-#### **1. "Connection refused" / "Ollama not found"**
+- **Welcome banner** with your username
+- **Session Info** card — role, status, sign-in time
+- **System Overview** — logs indexed, active users, queries this session, last response time
+- **Feature cards** — quick links to Query Logs, Analytics, Export
+- **Recent Activity** — your last 5 queries from this session (empty if no queries yet)
 
-**Symptoms:**
-- Error connecting to Ollama
-- Timeouts when generating responses
-- "Connection refused" errors
-
-**Solutions:**
-```bash
-# Check if Ollama is running
-curl http://localhost:11434/api/tags
-
-# If not running, start Ollama
-ollama serve
-
-# Verify model is available
-ollama list
-```
-
-#### **2. "Model not found"**
-
-**Symptoms:**
-- "Model llama3.1:8b not found" error
-- Empty model list
-
-**Solutions:**
-```bash
-# Pull the model
-ollama pull llama3.1:8b
-
-# Verify it's installed
-ollama list
-
-# Check model size
-ollama show llama3.1:8b
-```
-
-#### **3. Slow Response Times**
-
-**Symptoms:**
-- Generation takes >30 seconds
-- UI feels sluggish
-- System becomes unresponsive
-
-**Solutions:**
-1. **Use smaller model**: Switch from 70B to 8B
-2. **Reduce retrieved logs**: Set to 3-5 instead of 10+
-3. **Lower temperature**: Set to 0.3-0.5
-4. **Close other apps**: Free up RAM and CPU
-5. **Check GPU**: Ensure CUDA is properly configured (if using GPU)
-
-**Performance Benchmarks:**
-- **8B model**: 3-8 seconds per response (CPU)
-- **8B model**: 1-3 seconds per response (GPU)
-- **70B model**: 15-30 seconds per response (GPU required)
-
-#### **4. "Index not found" / "File not found"**
-
-**Symptoms:**
-- Can't load embeddings
-- "FileNotFoundError" for .npy or .csv files
-- Empty search results
-
-**Solutions:**
-```bash
-# Re-run the embedding pipeline
-python src/embeddings/enhanced_embedder.py
-
-# Rebuild the vector index
-python src/vector_db/optimized_search.py
-
-# Verify files exist
-dir data\embeddings\HDFS_enhanced.npy    # Windows
-dir data\processed_logs\HDFS_enhanced.csv
-
-ls data/embeddings/HDFS_enhanced.npy     # Linux/Mac
-ls data/processed_logs/HDFS_enhanced.csv
-```
-
-#### **5. Out of Memory Errors**
-
-**Symptoms:**
-- System crashes
-- "Out of memory" errors
-- Python process killed
-
-**Solutions:**
-1. **Use 8B model** instead of 70B
-2. **Reduce batch size** in `config.py`: Set `BATCH_SIZE = 16` or `8`
-3. **Close other applications** to free RAM
-4. **Restart Ollama**: `ollama serve`
-5. **Upgrade hardware**: Add more RAM if possible
-
-#### **6. Streamlit Won't Start**
-
-**Symptoms:**
-- Port 8501 already in use
-- Streamlit doesn't launch
-
-**Solutions:**
-```bash
-# Kill existing Streamlit processes
-# Windows:
-taskkill /F /IM streamlit.exe
-
-# Linux/Mac:
-pkill -f streamlit
-
-# Use different port
-streamlit run src/ui/enhanced_app_ollama.py --server.port 8502
-```
+The sidebar shows your username, role badge, and navigation buttons. Admin users see an additional **Admin Dashboard** button.
 
 ---
 
-## 📊 Understanding Results
+## Query Logs
 
-### Result Components
+This is the main page for querying your ICS security logs.
 
-#### **1. Generated Answer**
-- AI-generated response from Llama 3.1
-- Cites specific log entries (Log 1, Log 2, etc.)
-- Provides context and explanations
-- Offers actionable insights
+### Selecting a Dataset
 
-#### **2. Retrieved Logs**
-- Source logs used to generate the answer
-- Ranked by similarity score (highest first)
-- Shows:
-  - Original log text
-  - Detected protocols
-  - Severity level
-  - Similarity score
+Use the **Query Source** toggle at the top:
+- **Dataset (HDFS)** — 2,000 HDFS distributed system logs
+- **Dataset (BGL)** — 2,000 BlueGene/L supercomputer logs
+- **Upload Your Own File** — CSV or TXT log file
 
-#### **3. Metadata**
-- **Generation time**: How long the AI took to respond
-- **Analysis mode**: Which mode was used
-- **Model version**: Which Llama model generated the response
-- **Conversation position**: Turn number in the conversation
+To switch between HDFS and BGL, use the Dataset dropdown in the left sidebar.
 
-### Interpreting Similarity Scores
+### Uploading Your Own File
 
-| Score Range | Relevance | Description |
-|-------------|-----------|-------------|
-| **0.9-1.0** | Highly relevant | Nearly identical to query intent |
-| **0.7-0.9** | Very relevant | Strong semantic match |
-| **0.5-0.7** | Moderately relevant | Related but not exact |
-| **0.3-0.5** | Potentially relevant | Weak connection, may still be useful |
-| **<0.3** | Low relevance | Likely not useful (filtered out by default) |
+1. Select **Upload Your Own File** in the Query Source toggle
+2. Click **Browse files** and select a CSV or TXT file
+3. Wait 5–8 seconds for indexing (shown with progress bar)
+4. Type your query and click **Analyze**
 
----
+### Query Modes
 
-## 🆚 Comparison: Ollama vs OpenAI
+Select your analysis depth in the sidebar:
 
-| Feature | **Ollama (This System)** | **OpenAI API** |
-|---------|--------------------------|----------------|
-| **Cost** | Free (one-time setup) | ~$0.002-0.01 per query |
-| **Privacy** | 100% local, no data sent out | Data sent to OpenAI servers |
-| **Internet** | Not required after setup | Required for every query |
-| **Speed** | Depends on hardware (3-8s typical) | Very fast (1-3s) |
-| **Accuracy** | Very good (Llama 3.1) | Excellent (GPT-4) |
-| **Setup Complexity** | More complex initial setup | Simple (just API key) |
-| **Customization** | Full control over everything | Limited customization |
-| **Data Security** | Complete control | Must trust third party |
-| **Offline Use** | Yes (after initial setup) | No |
-| **Model Updates** | Manual (`ollama pull`) | Automatic |
+| Mode | Speed | Detail | Best For |
+|------|-------|--------|----------|
+| **Fast** | 1–3s | Overview | Quick checks |
+| **Detailed** | 3–6s | Full analysis | Investigation |
+| **Deep Analysis** | 5–10s | Comprehensive | Full audit |
 
-**Recommendation**: Use Ollama for:
-- ✅ Sensitive/proprietary data
-- ✅ Offline/air-gapped environments
-- ✅ Cost-conscious deployments
-- ✅ Full control requirements
-- ✅ Long-term sustainable solution
+### Running a Query
 
----
+1. Type your question in the **Natural Language Query** box
+2. Click **Analyze**
+3. Wait for the AI response
+4. If critical keywords are detected, a red/yellow alert banner appears
 
-## 🔒 Security & Privacy
+### Example Questions to Try
 
-### Data Privacy Guarantees
+**HDFS:**
+- Show all failed login attempts
+- Are there any brute force attacks?
+- Which IP addresses have the most failed connections?
+- Show me all blocked connections
+- What are the most common error types?
 
-- **100% Local Processing**: All data stays on your machine
-- **No External API Calls**: Except initial model download
-- **No Telemetry**: No usage data sent to any server
-- **Your Data Stays Yours**: Complete ownership and control
-- **No Internet Required**: After initial setup
+**BGL:**
+- Are there any hardware failures?
+- Show all fatal errors
+- What caused the most system crashes?
+- Are there any memory failures?
+- Show me all critical system alerts
 
-### Security Best Practices
+### Actions
 
-1. **Keep Ollama Updated**: 
-   ```bash
-   ollama update
-   ```
+- **Clear** — clears the current query and result
+- **History** — shows your last 10 queries this session
 
-2. **Regular Backups**: 
-   - Export important conversations
-   - Backup your processed logs and embeddings
+### Alert Banner
 
-3. **Access Control**: 
-   - Run on localhost only (default)
-   - Use firewall rules if needed
-   - Consider authentication for production
-
-4. **Monitor Resources**: 
-   - Watch CPU/RAM usage
-   - Set up alerts for anomalies
-
-5. **Review Logs**: 
-   - Check system logs periodically
-   - Monitor for unusual queries
+When the AI response contains critical security keywords, a banner appears:
+- **Red** = CRITICAL severity
+- **Yellow** = WARNING severity
+- Shows whether the alert email was sent successfully
 
 ---
 
-## 📝 Tips & Best Practices
+## Analytics
 
-### Query Writing Tips
+The analytics page shows charts based on your actual query session.
 
-**❌ Bad Query:**
-```
-Show errors
-```
+**Run at least 3–5 queries before visiting Analytics to see meaningful data.**
 
-**✅ Good Query:**
-```
-Show Modbus write errors on device 5 in the last hour
-```
+Charts shown:
+- **Activity Timeline** — queries over time
+- **Query Mode Breakdown** — pie chart of Fast/Detailed/Deep Analysis usage
+- **Dataset Usage** — bar chart of HDFS vs BGL vs Upload queries
+- **Response Time Chart** — how long each query took
 
----
-
-**❌ Vague:**
-```
-What happened?
-```
-
-**✅ Specific:**
-```
-What authentication failures occurred from IP 192.168.1.100?
-```
+The sidebar shows the same filters (Protocol, Time Range) which can be used to narrow down the view.
 
 ---
 
-**❌ Single Question:**
+## Export Center
+
+The export page lets you download your query data.
+
+### Data Preview
+
+Shows your actual query history from this session as a table. If no queries have been run yet, it shows sample data with a label indicating it is not real.
+
+### Export Options
+
+1. Select **Export Format** from the sidebar (CSV, JSON, Markdown, Plain Text)
+2. Toggle which columns to include (Metadata, Timestamps, Source IPs, Severity)
+3. Click **Download** to save the file
+
+Each download is logged in the **Export History** section at the bottom.
+
+### Export Templates
+
+Three pre-configured templates for common reporting needs:
+
+| Template | Contents | Best For |
+|----------|----------|----------|
+| **Security Report** | Queries + AI answers | Security incident documentation |
+| **Traffic Analysis** | Query timeline + sources + modes | Network forensics |
+| **Incident Report** | Full log with response times | Compliance filing |
+
+Templates are disabled until you have run at least one query.
+
+### Scheduled Exports
+
+Configure recurring automated exports:
+1. Set **Frequency** (Daily/Weekly/Monthly/Every 6 Hours)
+2. Set **Time (UTC)**
+3. Set **Export Format**
+4. Enter **Delivery Email**
+5. Check **Enable scheduled export**
+6. Click **Save Schedule**
+
+The Schedule Status panel updates to reflect your selections.
+
+---
+
+## Admin Dashboard
+
+Available only when logged in as `admin`.
+
+Navigate here directly after admin login, or via the **Admin Dashboard** button in any sidebar.
+
+### Tab 1: User Management
+
+Shows all registered users with:
+- Username and ID
+- Role (Admin/Analyst/Viewer)
+- Last login time
+- Active/Disabled status
+- Enable/Disable button (not available for the admin account)
+
+### Tab 2: Activity Log
+
+Shows the last 100 login sessions with:
+- Username
+- Role
+- Login time
+- Last activity time
+- Session status (Active/Ended)
+
+Click **Refresh Activity Log** to reload.
+
+### Tab 3: Create User
+
+Create new user accounts with role assignment:
+1. Enter username (minimum 3 characters)
+2. Enter password (minimum 6 characters)
+3. Select role: **Admin**, **Analyst**, or **Viewer**
+4. Click **Create User**
+
+**Role Permissions:**
+- **Admin** — full access including Admin Dashboard and Benchmark
+- **Analyst** — can query logs, view analytics, export results
+- **Viewer** — read-only access, can view results but not query
+
+### Benchmark Access
+
+The **Benchmark** button in the Admin Dashboard sidebar links to the Benchmark page. This page is only accessible by admins.
+
+---
+
+## Benchmark
+
+Available only to admins via the Admin Dashboard sidebar.
+
+### Running a Benchmark
+
+1. Navigate to Benchmark via Admin Dashboard → Benchmark button
+2. Click **Run Full Benchmark**
+3. Wait 1–2 minutes (8 queries × Groq API call each)
+4. Results appear automatically
+
+### What Gets Measured
+
+**Generation Metrics (Answer Quality):**
+- BLEU, ROUGE-1, ROUGE-2, ROUGE-L — how well AI answers match reference answers
+
+**Retrieval Metrics (Log Retrieval Quality):**
+- Precision@5 — of top-5 retrieved logs, how many were relevant
+- Recall@5 — how many relevant logs appear in top-5
+- MRR — Mean Reciprocal Rank, how high the first relevant log ranks
+
+### Exporting Results
+
+Download benchmark results as:
+- **CSV Report** — per-question scores table
+- **JSON Summary** — averaged metrics for paper/report use
+
+---
+
+## Alert System
+
+The alert system runs automatically after every query. No manual action is needed.
+
+### How It Works
+
+1. You run a query and receive an AI answer
+2. The system scans the answer for critical keywords
+3. If found, a banner appears above the response
+4. An HTML email is sent instantly to the configured recipient
+
+### Alert Email Contents
+
+- Severity level (CRITICAL or WARNING)
+- The query that triggered the alert
+- AI answer summary
+- Dataset, response time, triggering user, timestamp
+
+### Configuring Alerts
+
+Edit your `.env` file:
 ```
-Analyze all security issues
+ALERT_EMAIL=your_gmail@gmail.com
+ALERT_EMAIL_PASSWORD=your_16char_app_password
+ALERT_RECIPIENT=recipient@gmail.com
 ```
 
-**✅ Follow-Up Conversation:**
-```
-1. "Show me critical security events"
-2. "Which devices were affected?"
-3. "What's the root cause?"
-4. "How can we prevent this?"
-```
-
-### Performance Optimization Tips
-
-1. **Start Simple**: Begin with basic queries, then add complexity
-2. **Use Filters**: Apply protocol and severity filters to narrow results
-3. **Right Model for the Job**: 
-   - Use 8B for quick explorations
-   - Use 70B for critical analysis
-4. **Manage Conversation History**: 
-   - Clear old conversations to free memory
-   - Export and archive important sessions
-5. **Batch Similar Queries**: Ask related questions in one conversation
-
-### Getting the Best Answers
-
-1. **Provide Context**: Mention specific devices, time ranges, or protocols
-2. **Ask Follow-ups**: Build on previous answers for deeper insights
-3. **Specify Output Format**: "List the top 5...", "Summarize in 3 points..."
-4. **Use the Right Mode**: Security mode for threats, Troubleshooting for fixes
-5. **Adjust Retrieval**: If answers lack context, increase retrieved logs
+The App Password must be generated from Google Account → Security → App Passwords. Your regular Gmail password will not work.
 
 ---
 
-## 🎓 Learning Resources
+## Tips
 
-### ICS/SCADA Protocols
-- [Modbus Protocol Guide](https://modbus.org)
-- [DNP3 User Group](https://www.dnp.org)
-- [SNMP RFC Documentation](https://www.ietf.org/rfc/rfc1157.txt)
-- [BACnet International](https://www.bacnet.org)
-
-### AI & RAG Systems
-- [Llama 3.1 Announcement](https://ai.meta.com/blog/meta-llama-3-1/)
-- [RAG Explained (Pinecone)](https://www.pinecone.io/learn/retrieval-augmented-generation/)
-- [FAISS Documentation](https://faiss.ai)
-- [BERT Paper](https://arxiv.org/abs/1810.04805)
-
-### Vector Databases & Embeddings
-- [Understanding Vector Search](https://www.pinecone.io/learn/vector-search/)
-- [Sentence Transformers](https://www.sbert.net)
-- [FAISS GitHub](https://github.com/facebookresearch/faiss)
+- Run several queries before visiting Analytics or Export — both pages are more useful with real data
+- Use **Fast** mode for quick exploration, **Detailed** for actual analysis
+- The query history is session-based — it resets when you restart the app
+- Admin users can create new analyst or viewer accounts from the Admin Dashboard
+- The alert system only emails on CRITICAL/WARNING keyword detection — normal queries do not send emails
 
 ---
 
-## 📞 Support & Resources
-
-### Documentation
-- **User Guide**: `docs/USER_GUIDE.md` (this file)
-- **Technical Documentation**: `docs/TECHNICAL.md`
-- **Deployment Guide**: `docs/DEPLOYMENT.md`
-- **Troubleshooting**: `docs/TROUBLESHOOTING.md`
-- **API Reference**: `docs/API.md`
-
-### Getting Help
-
-**GitHub Issues**: [Report bugs or request features](https://github.com/yourusername/ICS-LogQueryGPT/issues)
-
-**Before opening an issue:**
-1. Check existing issues
-2. Run the test suite: `python tests/test_complete_system.py`
-3. Include system info and error messages
-
-### Project Information
-- **Version**: 1.0.0
-- **Last Updated**: January 21, 2026
-- **License**: MIT
-- **Maintained by**: ICS-LogQueryGPT Team
-
----
-
-## 🚀 Next Steps
-
-### After Mastering the Basics
-
-1. **Explore Advanced Queries**: Try complex multi-part questions
-2. **Customize Settings**: Fine-tune retrieval and generation parameters
-3. **Add Your Own Logs**: Extend beyond HDFS dataset
-4. **Integrate with Tools**: Connect to monitoring systems
-5. **Contribute**: Submit improvements to the project
-
-### Optional Features to Enable
-
-- **Email Alerts**: Get notified of critical events
-- **Slack Integration**: Query logs from Slack
-- **REST API**: Build custom integrations
-- **Multi-Language**: Add support for other languages
-- **Advanced Analytics**: Build custom dashboards
-
----
-
-**Need help? Have questions?** 
-
-Open an issue on GitHub or check our comprehensive troubleshooting guide!
-
----
-
-*Built with ❤️ for the ICS/SCADA community*
+**Version:** 1.0.0 | **Last Updated:** March 2026

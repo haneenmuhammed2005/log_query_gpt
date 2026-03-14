@@ -1,694 +1,324 @@
-# 🏗️ Technical Documentation
+# Technical Documentation
 
 Complete technical architecture and implementation details for ICS-LogQueryGPT.
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [System Architecture](#-system-architecture)
-- [Technology Stack](#-technology-stack)
-- [Core Components](#-core-components)
-- [Data Pipeline](#-data-pipeline)
-- [RAG Implementation](#-rag-implementation)
-- [Performance Optimization](#-performance-optimization)
-- [API Reference](#-api-reference)
+- [System Architecture](#system-architecture)
+- [Technology Stack](#technology-stack)
+- [Core Components](#core-components)
+- [RAG Pipeline](#rag-pipeline)
+- [Authentication System](#authentication-system)
+- [Alert System](#alert-system)
+- [Benchmark & Evaluation](#benchmark--evaluation)
+- [Performance](#performance)
 
 ---
 
-## 🏛️ System Architecture
-
-### High-Level Architecture
+## System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                      User Interface Layer                        │
-│                     (Streamlit Web App)                          │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────┐   │
-│  │ Protocol │  │ Severity │  │ Analysis │  │ Conversation │   │
-│  │ Filters  │  │ Filters  │  │   Mode   │  │   History    │   │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────────┘   │
-└─────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                    UI Layer (Streamlit)                        │
+│                                                                │
+│  Login  │  Home  │  Query Logs  │  Analytics  │  Export       │
+│  Admin Dashboard  │  Benchmark (admin only)                   │
+└──────────────────────────────────────────────────────────────┘
                             ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                    Application Logic Layer                       │
-│                                                                   │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │         Conversational RAG System                       │   │
-│  │  • Query Processing & Expansion                         │   │
-│  │  • Context Management                                   │   │
-│  │  • Response Generation                                  │   │
-│  │  • Conversation Memory                                  │   │
-│  └─────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                  Authentication Layer                          │
+│  SQLite users.db  │  bcrypt hashing  │  Session tokens        │
+│  Role-based access: admin / analyst / viewer                  │
+└──────────────────────────────────────────────────────────────┘
                             ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                       Data Processing Layer                      │
-│                                                                   │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐     │
-│  │   Protocol   │  │   Enhanced   │  │  Vector Search   │     │
-│  │  Detection   │  │  Embeddings  │  │     (FAISS)      │     │
-│  └──────────────┘  └──────────────┘  └──────────────────┘     │
-└─────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                    RAG Pipeline                                │
+│                                                                │
+│  [1] BERT Embedding → 768-dim vector                          │
+│  [2] FAISS Vector Search → top-K logs                         │
+│  [3] Context Assembly → prompt construction                   │
+│  [4] Groq LLM (llama-3.1-8b-instant) → answer                │
+│  [4b] Gemini Flash fallback (if Groq fails)                   │
+│  [5] Critical Keyword Scan → email alert if triggered         │
+└──────────────────────────────────────────────────────────────┘
                             ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                         AI/ML Layer                              │
-│                                                                   │
-│  ┌──────────────────────┐       ┌──────────────────────┐       │
-│  │   BERT Encoder       │       │   Llama 3.1 LLM      │       │
-│  │  (bert-base-uncased) │       │     (via Ollama)     │       │
-│  │   768-dim vectors    │       │   8B / 70B models    │       │
-│  └──────────────────────┘       └──────────────────────┘       │
-└─────────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                        Storage Layer                             │
-│                                                                   │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐     │
-│  │   Raw Logs   │  │  Processed   │  │    Embeddings    │     │
-│  │     CSV      │  │     CSV      │  │       NPY        │     │
-│  └──────────────┘  └──────────────┘  └──────────────────┘     │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### Component Interaction Flow
-
-```
-User Query
-    ↓
-[1] Query Preprocessing
-    • Tokenization
-    • Protocol detection
-    • Query expansion
-    ↓
-[2] Embedding Generation (BERT)
-    • Convert query to 768-dim vector
-    • Normalize vector
-    ↓
-[3] Vector Search (FAISS)
-    • Similarity search
-    • Apply filters (protocol, severity)
-    • Rank results
-    ↓
-[4] Context Assembly
-    • Retrieve top-k logs
-    • Add metadata (protocol, severity, timestamp)
-    • Format for LLM
-    ↓
-[5] Prompt Construction
-    • Select analysis mode template
-    • Insert retrieved logs
-    • Add conversation history
-    ↓
-[6] LLM Generation (Llama 3.1)
-    • Generate response
-    • Cite sources
-    • Provide insights
-    ↓
-[7] Post-processing
-    • Format response
-    • Update conversation history
-    • Log metrics
-    ↓
-Response to User
+┌──────────────────────────────────────────────────────────────┐
+│                    Storage Layer                               │
+│  HDFS_index.faiss  │  BGL_index.faiss  │  users.db            │
+│  sessions.db       │  .cache/ (MiniLM) │  .env (API keys)     │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
-### Core Technologies
-
-| Component | Technology | Version | Purpose |
-|-----------|-----------|---------|---------|
-| **LLM** | Llama 3.1 | 8B/70B | Natural language generation |
-| **LLM Serving** | Ollama | Latest | Local LLM inference |
-| **Embeddings** | BERT | base-uncased | Semantic text encoding |
-| **Vector DB** | FAISS | 1.7.4 | Fast similarity search |
-| **Web Framework** | Streamlit | 1.28+ | User interface |
-| **ML Framework** | PyTorch | 2.0+ | Deep learning backend |
-| **Language** | Python | 3.8+ | Application logic |
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **Primary LLM** | Groq — llama-3.1-8b-instant | Fast AI response generation |
+| **Fallback LLM** | Google Gemini Flash | Automatic fallback reliability |
+| **LLM Framework** | LangChain | LLM abstraction and chaining |
+| **Dataset Embeddings** | BERT (bert-base-uncased) | 768-dim semantic vectors |
+| **Upload Embeddings** | MiniLM (all-MiniLM-L6-v2) | Fast file indexing (5–8s) |
+| **Vector Search** | FAISS (IndexFlatIP) | Sub-millisecond similarity search |
+| **Web Framework** | Streamlit | UI and routing |
+| **Auth DB** | SQLite + bcrypt | User/session management |
+| **Alert Email** | Gmail SMTP SSL | Instant email on critical detection |
+| **Charts** | Plotly | Interactive analytics visualizations |
+| **Language** | Python 3.8+ | Application logic |
 
 ### Key Libraries
 
-```python
-# requirements.txt
-streamlit>=1.28.0          # Web UI
-ollama>=0.1.0              # Ollama client
-sentence-transformers>=2.2.0  # BERT embeddings
-faiss-cpu>=1.7.4           # Vector search
-numpy>=1.24.0              # Numerical operations
-pandas>=2.0.0              # Data manipulation
-torch>=2.0.0               # PyTorch
-transformers>=4.30.0       # HuggingFace models
+```
+streamlit>=1.28.0
+langchain-groq
+langchain-google-genai
+langchain-core
+sentence-transformers
+faiss-cpu
+transformers
+torch
+numpy
+pandas
+bcrypt
+python-dotenv
+plotly
 ```
 
 ---
 
-## 🧩 Core Components
+## Core Components
 
-### 1. Protocol Detector
+### 1. BERT Embedder
 
-**File:** `src/preprocessing/protocol_detector.py`
+**File:** `src/rag_system/integrated_rag_ollama.py`
 
-**Purpose:** Detect ICS/SCADA protocols in log entries
+Converts log text and queries into 768-dimensional vectors using `bert-base-uncased`. The [CLS] token embedding is extracted and L2-normalized for cosine similarity search via FAISS IndexFlatIP.
 
-**Supported Protocols:**
-- Modbus TCP/RTU
-- DNP3
-- SNMP
-- SSH
-- HTTP/HTTPS
-- FTP
-- Telnet
-- BACnet
-
-**Algorithm:**
 ```python
-class ProtocolDetector:
-    def detect_protocol(self, log_text: str) -> List[str]:
-        """
-        Two-pass detection:
-        1. Explicit protocol names (high priority)
-        2. Protocol-specific patterns (if no explicit match)
-        """
-        # Pass 1: Look for explicit mentions
-        for protocol, pattern in explicit_protocols.items():
-            if re.search(pattern, log_text):
-                return [protocol]
-        
-        # Pass 2: Pattern-based detection
-        detected = []
-        for protocol, patterns in protocol_patterns.items():
-            if any(re.search(p, log_text) for p in patterns):
-                detected.append(protocol)
-        
-        return detected if detected else ['unknown']
+# Embedding process
+inputs = tokenizer(text, return_tensors='pt', truncation=True, max_length=512)
+outputs = model(**inputs)
+embedding = outputs.last_hidden_state[:, 0, :].numpy()  # CLS token
+return embedding / np.linalg.norm(embedding)             # Normalize
 ```
 
-**Key Features:**
-- Word boundary matching to avoid false positives
-- Priority-based pattern matching
-- Severity level detection
-- Extensible pattern system
+**Cache:** `D:/Projects/log_query_gpt/.cache/huggingface`
+
+### 2. MiniLM Embedder (for uploaded files)
+
+**File:** `src/ui/pages/1_Query_Logs.py`
+
+Uses `all-MiniLM-L6-v2` for fast indexing of user-uploaded files. Embedding time is 5–8 seconds for a typical CSV file compared to ~40 seconds with BERT.
+
+```python
+from sentence_transformers import SentenceTransformer
+model = SentenceTransformer('all-MiniLM-L6-v2')
+embeddings = model.encode(texts, show_progress_bar=True)
+```
+
+**Cache:** `D:/Projects/log_query_gpt/.cache/sentence_transformers`
+
+### 3. FAISS Vector Search
+
+**Index type:** `IndexFlatIP` (Inner Product / cosine similarity after normalization)
+
+Two indexes are pre-built and stored on disk:
+- `data/vector_db/HDFS_index.faiss` — 2,000 HDFS log vectors
+- `data/vector_db/BGL_index.faiss` — 2,000 BGL log vectors
+
+Search returns top-K results with similarity scores. Default K=5.
+
+### 4. Groq + Gemini LLM
+
+**File:** `src/rag_system/basic_rag_ollama.py`
+
+Uses LangChain with `ChatGroq` as primary and `ChatGoogleGenerativeAI` as fallback.
+
+```python
+from langchain_groq import ChatGroq
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+primary_llm   = ChatGroq(model="llama-3.1-8b-instant", groq_api_key=...)
+fallback_llm  = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=...)
+```
+
+If the Groq API call fails (rate limit, timeout, etc.), the system silently falls back to Gemini Flash.
+
+### 5. Query Modes
+
+| Mode | Top-K Logs | Temperature | Use Case |
+|------|-----------|-------------|----------|
+| Fast | 3 | 0.3 | Quick overview |
+| Detailed | 5 | 0.5 | Investigation |
+| Deep Analysis | 8 | 0.7 | Full audit |
 
 ---
 
-### 2. Log Embedder
+## RAG Pipeline
 
-**File:** `src/embeddings/log_embedder.py`
+Full query flow from user input to response:
 
-**Purpose:** Convert log text to 768-dimensional vectors
-
-**Model:** `bert-base-uncased` from HuggingFace
-
-**Architecture:**
-```python
-class LogEmbedder:
-    def __init__(self):
-        self.model = BertModel.from_pretrained('bert-base-uncased')
-        self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    
-    def embed_single_log(self, text: str) -> np.ndarray:
-        """
-        Process:
-        1. Tokenize text (max 512 tokens)
-        2. Pass through BERT encoder
-        3. Extract [CLS] token embedding
-        4. Normalize to unit length
-        """
-        inputs = self.tokenizer(text, return_tensors='pt', 
-                               truncation=True, max_length=512)
-        with torch.no_grad():
-            outputs = self.model(**inputs)
-        embedding = outputs.last_hidden_state[:, 0, :].numpy()
-        return embedding / np.linalg.norm(embedding)
-    
-    def embed_batch(self, texts: List[str], batch_size: int = 32):
-        """Batch processing for efficiency"""
-        embeddings = []
-        for i in tqdm(range(0, len(texts), batch_size)):
-            batch = texts[i:i+batch_size]
-            batch_emb = [self.embed_single_log(t) for t in batch]
-            embeddings.extend(batch_emb)
-        return np.vstack(embeddings)
 ```
-
-**Performance:**
-- CPU: ~120 logs/second
-- GPU: ~500+ logs/second
-- Memory: ~2GB for model
-
----
-
-### 3. Vector Search Engine
-
-**File:** `src/vector_db/optimized_search.py`
-
-**Purpose:** Fast similarity search with filtering
-
-**Index Types:**
-
-1. **Flat Index** (< 10K vectors)
-   - Exact search
-   - No compression
-   - Sub-millisecond search
-
-2. **IVF Index** (10K - 1M vectors)
-   - Approximate search
-   - Clustering-based
-   - Configurable accuracy/speed tradeoff
-
-**Implementation:**
-```python
-class OptimizedVectorDB:
-    def build_index(self, embeddings: np.ndarray, metadata: pd.DataFrame):
-        """
-        Auto-select index type based on size
-        """
-        n_vectors = len(embeddings)
-        
-        if n_vectors < 10000:
-            # Flat index for small datasets
-            self.index = faiss.IndexFlatIP(768)
-        else:
-            # IVF index for larger datasets
-            n_clusters = int(np.sqrt(n_vectors))
-            quantizer = faiss.IndexFlatIP(768)
-            self.index = faiss.IndexIVFFlat(quantizer, 768, n_clusters)
-            self.index.train(embeddings)
-        
-        self.index.add(embeddings)
-    
-    def search_with_filter(self, query: np.ndarray, k: int, 
-                          protocol_filter: str = None,
-                          severity_filter: str = None):
-        """
-        1. Perform vector search (retrieve top-k*3)
-        2. Apply metadata filters
-        3. Return top-k filtered results
-        """
-        # Over-retrieve to account for filtering
-        scores, indices = self.index.search(query, k * 3)
-        
-        # Apply filters
-        results = []
-        for idx, score in zip(indices[0], scores[0]):
-            log = self.metadata.iloc[idx]
-            
-            if protocol_filter and protocol_filter not in log['protocols']:
-                continue
-            if severity_filter and log['severity'] != severity_filter:
-                continue
-            
-            results.append({
-                'log_text': log['cleaned'],
-                'protocols': log['protocols'],
-                'severity': log['severity'],
-                'similarity_score': float(score)
-            })
-            
-            if len(results) >= k:
-                break
-        
-        return results
-```
-
-**Performance Characteristics:**
-- **Search Time**: <100ms for 2000 vectors
-- **Memory**: ~6MB per 1000 vectors (768-dim)
-- **Scalability**: Handles millions of vectors with IVF
-
----
-
-### 4. RAG System
-
-**File:** `src/rag_system/conversational_rag_ollama.py`
-
-**Purpose:** Context-aware response generation
-
-**Architecture:**
-```python
-class ConversationalRAGOllama:
-    def __init__(self, model_name: str = 'llama3.1:8b'):
-        self.model = model_name
-        self.conversation_history = []
-        self.embedder = LogEmbedder()
-        self.vector_db = OptimizedVectorDB()
-    
-    def generate_with_context(self, query: str, 
-                             retrieved_logs: List[Dict],
-                             mode: str = 'analysis'):
-        """
-        RAG Pipeline:
-        1. Expand query (add context from conversation)
-        2. Construct prompt using template
-        3. Generate response via Ollama
-        4. Update conversation history
-        """
-        # Query expansion
-        expanded_query = self._expand_query(query)
-        
-        # Select prompt template
-        template = self.templates[mode]
-        
-        # Construct prompt
-        prompt = template.format(
-            query=expanded_query,
-            logs=self._format_logs(retrieved_logs),
-            history=self._format_history()
-        )
-        
-        # Generate
-        response = self._call_ollama(prompt)
-        
-        # Update history
-        self.conversation_history.append({
-            'query': query,
-            'response': response,
-            'logs_used': len(retrieved_logs)
-        })
-        
-        return response
-```
-
-**Prompt Templates:**
-
-1. **Analysis Mode:**
-```python
-"""
-You are an expert ICS/SCADA log analyzer.
-
-Retrieved Logs:
-{logs}
-
-User Question: {query}
-
-Provide a detailed analysis:
-1. What happened?
-2. Which systems were affected?
-3. What was the impact?
-4. What should be done?
-
-Cite specific logs (Log 1, Log 2, etc.).
-"""
-```
-
-2. **Security Mode:**
-```python
-"""
-You are a cybersecurity expert specializing in ICS/SCADA systems.
-
-Retrieved Logs:
-{logs}
-
-User Question: {query}
-
-Security Analysis:
-1. Threat Assessment
-2. Attack Vectors
-3. Affected Assets
-4. Recommended Actions
-
-Focus on security implications.
-"""
-```
-
-**Query Expansion:**
-```python
-def _expand_query(self, query: str) -> str:
-    """
-    Add context from recent conversation history
-    """
-    if not self.conversation_history:
-        return query
-    
-    # Get last 2 exchanges
-    recent = self.conversation_history[-2:]
-    context = " ".join([f"Previous: {h['query']}" for h in recent])
-    
-    return f"{context} Current: {query}"
+1. User submits query text
+2. Query embedded with BERT → 768-dim vector
+3. FAISS search on selected dataset (HDFS/BGL/uploaded)
+4. Top-K logs retrieved with similarity scores
+5. Prompt assembled:
+   - System instruction (security analyst persona)
+   - Retrieved log entries with metadata
+   - User query
+6. Groq API called → streamed response
+7. Response scanned for critical keywords
+8. If critical: red banner shown + email sent
+9. Result stored in session state (query_history, current_results)
 ```
 
 ---
 
-## 📊 Data Pipeline
+## Authentication System
 
-### Pipeline Stages
+**Files:** `src/ui/auth/user_manager.py`, `src/ui/auth/session.py`
 
-```
-Raw Logs
-    ↓
-[1] Download & Extract
-    • fetch_data.py
-    • Extract from archives
-    ↓
-[2] Preprocessing
-    • Clean text
-    • Remove duplicates
-    • Normalize timestamps
-    ↓
-[3] Protocol Detection
-    • Identify ICS protocols
-    • Detect severity levels
-    • Add metadata
-    ↓
-[4] Embedding Generation
-    • Tokenize with BERT
-    • Generate 768-dim vectors
-    • Normalize embeddings
-    ↓
-[5] Index Building
-    • Select index type
-    • Build FAISS index
-    • Save to disk
-    ↓
-Ready for Search
-```
+### Users Database (`data/users.db`)
 
-### Data Format
-
-**Raw Log Entry:**
-```
-2024-01-15 08:23:45,INFO,Device 5 Modbus read failure on coil 100
-```
-
-**After Preprocessing:**
-```python
-{
-    'original': '2024-01-15 08:23:45,INFO,Device 5 Modbus read failure on coil 100',
-    'cleaned': 'device 5 modbus read failure on coil 100',
-    'timestamp': '2024-01-15 08:23:45',
-    'protocols': 'modbus',
-    'severity': 'high',
-    'embedding': [0.023, -0.145, ...] # 768 dimensions
-}
-```
-
----
-
-## ⚡ Performance Optimization
-
-### Optimization Strategies
-
-**1. Batch Processing**
-```python
-# Process embeddings in batches
-for i in range(0, len(logs), BATCH_SIZE):
-    batch = logs[i:i+BATCH_SIZE]
-    embeddings = embedder.embed_batch(batch)
-```
-
-**2. GPU Acceleration**
-```python
-# Automatically use GPU if available
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-model = model.to(device)
-```
-
-**3. Caching**
-```python
-@lru_cache(maxsize=1000)
-def embed_query(query: str):
-    return embedder.embed_single_log(query)
-```
-
-**4. Index Optimization**
-```python
-# Use IVF for large datasets
-if n_vectors > 10000:
-    n_clusters = int(np.sqrt(n_vectors))
-    index = faiss.IndexIVFFlat(quantizer, dim, n_clusters)
-```
-
-### Performance Benchmarks
-
-| Operation | Time | Throughput |
-|-----------|------|------------|
-| **Embedding (single)** | 4ms | 250/sec |
-| **Embedding (batch)** | - | 120/sec |
-| **Vector Search** | <1ms | 1000+/sec |
-| **LLM Generation (8B)** | 3-8s | 40-100 tokens/s |
-| **LLM Generation (70B)** | 15-30s | 10-30 tokens/s |
-| **End-to-End Query** | 4-10s | - |
-
----
-
-## 📡 API Reference
-
-### LogEmbedder
-
-```python
-from embeddings.log_embedder import LogEmbedder
-
-embedder = LogEmbedder()
-
-# Single embedding
-embedding = embedder.embed_single_log("authentication failed")
-# Returns: np.ndarray shape (768,)
-
-# Batch embedding
-embeddings = embedder.embed_batch(["log 1", "log 2"], batch_size=32)
-# Returns: np.ndarray shape (n, 768)
-```
-
-### ProtocolDetector
-
-```python
-from preprocessing.protocol_detector import ProtocolDetector
-
-detector = ProtocolDetector()
-
-# Detect protocols
-protocols = detector.detect_protocol("modbus read failed")
-# Returns: ['modbus']
-
-# Detect severity
-severity = detector.detect_severity("critical authentication failure")
-# Returns: 'critical'
-```
-
-### OptimizedVectorDB
-
-```python
-from vector_db.optimized_search import OptimizedVectorDB
-
-db = OptimizedVectorDB()
-
-# Build index
-db.build_index(embeddings, metadata_df)
-
-# Search
-results = db.search_with_filter(
-    query_embedding,
-    k=5,
-    protocol_filter='modbus',
-    severity_filter='high'
+```sql
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,       -- bcrypt
+    role TEXT NOT NULL,                -- admin / analyst / viewer
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_login TIMESTAMP,
+    active BOOLEAN DEFAULT 1
 )
-# Returns: List[Dict] with similarity scores
 ```
 
-### ConversationalRAGOllama
+### Sessions Database (`data/sessions.db`)
 
-```python
-from rag_system.conversational_rag_ollama import ConversationalRAGOllama
-
-rag = ConversationalRAGOllama(model_name='llama3.1:8b')
-
-# Start conversation
-rag.start_conversation()
-
-# Generate response
-result = rag.generate_with_context(
-    query="What authentication issues occurred?",
-    retrieved_logs=logs,
-    mode='security'
+```sql
+CREATE TABLE sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_token TEXT UNIQUE NOT NULL, -- UUID4
+    user_id INTEGER NOT NULL,
+    username TEXT NOT NULL,
+    user_role TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL,      -- 30 min timeout
+    active BOOLEAN DEFAULT 1
 )
+```
 
-# Export conversation
-rag.export_conversation('conversation.json')
+### Role Permissions
+
+| Role | Query Logs | Analytics | Export | Admin Dashboard | Benchmark |
+|------|-----------|-----------|--------|----------------|-----------|
+| admin | ✅ | ✅ | ✅ | ✅ | ✅ |
+| analyst | ✅ | ✅ | ✅ | ❌ | ❌ |
+| viewer | ✅ | ✅ | ✅ | ❌ | ❌ |
+
+### Login Flow
+
+```
+Login page → credentials checked →
+  admin role → redirect to Admin Dashboard
+  other role → redirect to Home page
 ```
 
 ---
 
-## 🔐 Security Considerations
+## Alert System
 
-### Data Privacy
+**File:** `src/ui/utils/alert_system.py`
 
-- **No External API Calls**: All processing is local
-- **No Telemetry**: No usage data sent anywhere
-- **Encrypted Storage**: Option to encrypt embeddings at rest
+### Critical Keywords
 
-### Access Control
+The system scans every AI response for:
+```
+brute force, attack, intrusion, unauthorized, authentication failure,
+failed login, blocked, critical, malware, exploit, suspicious,
+anomaly, threat, breach, compromised, escalation, privilege escalation,
+root access, fatal, kernel panic, memory corruption, hardware failure,
+node failure, excessive, flood, denial of service, dos attack
+```
 
-```python
-# Example: Add basic authentication
-import streamlit_authenticator as stauth
+### Severity Classification
 
-authenticator = stauth.Authenticate(
-    credentials,
-    cookie_name='ics_logquery',
-    key='some_signature_key',
-    cookie_expiry_days=30
-)
+- **CRITICAL** — attack, brute force, intrusion, unauthorized, malware, exploit, breach, fatal, kernel panic
+- **WARNING** — all other keyword matches
 
-name, authentication_status = authenticator.login('Login', 'main')
+### Email Format
 
-if authentication_status:
-    # Show application
-    run_app()
-elif authentication_status == False:
-    st.error('Username/password is incorrect')
+Sends an HTML email via Gmail SMTP SSL (port 465) with:
+- Severity badge (red/yellow)
+- Original query that triggered the alert
+- AI answer (first 800 characters)
+- Metadata: dataset, response time, triggering user, timestamp
+
+### Configuration (.env)
+
+```
+ALERT_EMAIL=sender@gmail.com
+ALERT_EMAIL_PASSWORD=your_16char_app_password
+ALERT_RECIPIENT=recipient@gmail.com
 ```
 
 ---
 
-## 📈 Scalability
+## Benchmark & Evaluation
 
-### Handling Large Datasets
+**File:** `src/ui/pages/6_Benchmark.py` (admin only)
 
-**Current Capacity:**
-- 2,000 logs: <100ms search
-- 100,000 logs: <500ms search
-- 1M+ logs: <2s search (with IVF index)
+### Test Set
 
-**Scaling Strategies:**
+8 questions (4 HDFS + 4 BGL) with detailed reference answers. Covers authentication failures, brute force, connection errors, hardware failures, fatal errors, and system crashes.
 
-1. **Horizontal Scaling**: Use FAISS distributed indexing
-2. **Vertical Scaling**: Add more RAM/CPU
-3. **Partitioning**: Split by time/protocol
-4. **Streaming**: Process logs in real-time
+### Generation Metrics
 
----
+| Metric | What It Measures |
+|--------|-----------------|
+| **BLEU** | N-gram word overlap between AI answer and reference |
+| **ROUGE-1** | Unigram recall — individual word coverage |
+| **ROUGE-2** | Bigram recall — two-word phrase coverage |
+| **ROUGE-L** | Longest common subsequence match |
 
-## 🧪 Testing
+### Retrieval Metrics
 
-### Test Suite
+| Metric | What It Measures |
+|--------|-----------------|
+| **Precision@5** | Fraction of top-5 retrieved logs that are relevant |
+| **Recall@5** | Fraction of all relevant logs found in top-5 |
+| **MRR** | Mean Reciprocal Rank — position of first relevant log |
 
-```bash
-python tests/test_complete_system.py
-```
+### Results
 
-**Test Coverage:**
-- Protocol detection accuracy
-- Embedding generation quality
-- Vector search correctness
-- RAG system functionality
-- Conversation memory
-- Data integrity
+| Metric | Score |
+|--------|-------|
+| Recall@5 | 1.000 (perfect) |
+| MRR | 1.000 (perfect) |
+| Precision@5 | 0.400 |
+| ROUGE-1 | ~0.092 |
+| BLEU | ~0.022 |
+| Avg Time | ~7.4s |
 
----
-
-## 📚 References
-
-- [Llama 3.1 Paper](https://ai.meta.com/research/publications/llama-3-herd-of-models/)
-- [BERT Paper](https://arxiv.org/abs/1810.04805)
-- [FAISS Documentation](https://github.com/facebookresearch/faiss/wiki)
-- [RAG Overview](https://arxiv.org/abs/2005.11401)
+Low BLEU/ROUGE scores are expected in RAG systems where AI answers paraphrase rather than reproduce reference text verbatim. Perfect Recall@5 and MRR confirm the retrieval pipeline works correctly.
 
 ---
 
-**Version**: 1.0.0  
-**Last Updated**: January 21, 2026  
-**Maintained by**: ICS-LogQueryGPT Team
+## Performance
+
+| Operation | Time |
+|-----------|------|
+| BERT embedding (single query) | ~200ms |
+| FAISS search (2,000 vectors) | <1ms |
+| Groq LLM generation | 1–3s |
+| Gemini Flash fallback | 2–5s |
+| MiniLM file indexing (~1,000 logs) | 5–8s |
+| Full end-to-end query | 2–8s |
+
+---
+
+**Version:** 1.0.0 | **Last Updated:** March 2026

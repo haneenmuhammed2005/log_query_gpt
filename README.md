@@ -1,409 +1,246 @@
-# 🚀 ICS-LogQueryGPT
+# ICS-LogQueryGPT
 
 **AI-Powered Log Analysis for Industrial Control Systems**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![Ollama](https://img.shields.io/badge/Ollama-Llama%203.1-green.svg)](https://ollama.com/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.28+-red.svg)](https://streamlit.io/)
+[![Groq](https://img.shields.io/badge/AI-Groq%20+%20Gemini%20Flash-green.svg)](https://groq.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Query your ICS/SCADA logs using natural language with 100% local, private AI powered by Llama 3.1.
-
-![ICS-LogQueryGPT Demo](docs/assets/demo.gif)
-
----
-
-## ✨ Features
-
-- 🤖 **Local AI**: 100% private, no data leaves your machine
-- 🔍 **Smart Search**: Vector-based semantic search with FAISS
-- 🗣️ **Natural Language**: Ask questions in plain English
-- 🔌 **Protocol Aware**: Detects Modbus, DNP3, SNMP, SSH, HTTP, and more
-- 💬 **Conversational**: Remembers context for follow-up questions
-- ⚡ **Fast**: Sub-100ms search, 3-8s response time
-- 🎯 **Accurate**: Powered by Llama 3.1 and BERT embeddings
-- 🔒 **Secure**: Complete data privacy and control
+Query your ICS/SCADA security logs using natural language. Powered by BERT semantic embeddings, FAISS vector search, and Groq + Gemini Flash AI for 1–3 second responses.
 
 ---
 
-## 🎬 Quick Demo
+## Features
 
-```bash
-You: "Show me authentication failures"
-AI: "Found 3 SSH authentication failures from IP 192.168.1.100..."
-
-You: "Is this a security concern?"
-AI: "Yes, multiple failed attempts from the same IP suggests a brute force attack..."
-
-You: "What should I do?"
-AI: "Recommended actions: 1) Block IP 192.168.1.100, 2) Enable rate limiting..."
-```
-
----
-
-## 📋 Table of Contents
-
-- [Features](#-features)
-- [Quick Start](#-quick-start)
-- [Installation](#-installation)
-- [Usage](#-usage)
-- [Architecture](#-architecture)
-- [Documentation](#-documentation)
-- [Performance](#-performance)
-- [Contributing](#-contributing)
-- [License](#-license)
+- **Natural Language Queries** — Ask questions in plain English, no query syntax required
+- **BERT + FAISS Retrieval** — 4,000+ log vectors across HDFS and BGL datasets with semantic search
+- **Groq + Gemini Flash AI** — 1–3 second responses with automatic fallback for reliability
+- **Upload Any Log File** — CSV or TXT files indexed instantly using MiniLM embeddings
+- **Critical Alert System** — Auto-detects threats and sends instant email alerts
+- **Role-Based Access** — Admin, Analyst, and Viewer roles with session management
+- **Admin Dashboard** — User management, activity log, create users, benchmark access
+- **Benchmark Metrics** — BLEU, ROUGE, Precision@5, Recall@5, MRR evaluation suite
+- **Export Center** — CSV, JSON, Markdown export with templates and history tracking
+- **Analytics Dashboard** — Real session-based charts and query history visualization
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
 - Python 3.8+
-- 16GB RAM (32GB recommended)
-- Ollama installed
+- 8GB RAM minimum
+- Groq API key (free at [console.groq.com](https://console.groq.com))
+- Google API key (free at [aistudio.google.com](https://aistudio.google.com))
 
-### Installation (5 minutes)
+### Installation
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/yourusername/ICS-LogQueryGPT.git
+git clone https://github.com/haneenmuhammed2005/ICS-LogQueryGPT.git
 cd ICS-LogQueryGPT
 
 # 2. Create virtual environment
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+venv\Scripts\activate        # Windows
+# source venv/bin/activate   # Linux/Mac
 
 # 3. Install dependencies
 pip install -r requirements.txt
 
-# 4. Install Ollama and pull model
-# Download from https://ollama.com/download
-ollama pull llama3.1:8b
+# 4. Set up environment variables
+# Create a .env file in the project root:
+GROQ_API_KEY=your_groq_api_key
+GOOGLE_API_KEY=your_google_api_key
+ALERT_EMAIL=your_gmail@gmail.com
+ALERT_EMAIL_PASSWORD=your_gmail_app_password
+ALERT_RECIPIENT=recipient@gmail.com
 
-# 5. Prepare data
-python src/preprocessing/download_data.py
-python src/preprocessing/process_all_data.py
-python src/embeddings/enhanced_embedder.py
+# 5. Build FAISS indexes (first time only)
+python build_bgl_index.py
 
 # 6. Launch application
-streamlit run src/ui/enhanced_app_ollama.py
+streamlit run src/ui/app.py
 ```
 
 **Access at:** http://localhost:8501
 
+### Default Login
+
+| Username | Password | Role |
+|----------|----------|------|
+| `admin` | `admin123` | Admin |
+
+Any new sign-up gets the `analyst` role automatically.
+
 ---
 
-## 💡 Usage
+## Usage
 
 ### Example Queries
 
-**Security Analysis:**
-```
-- "Show me all authentication failures"
-- "Find suspicious login attempts"
-- "What security concerns should I investigate?"
-```
+**HDFS Dataset:**
+- "Show all failed login attempts"
+- "Are there any brute force attacks?"
+- "Which IP addresses have the most failed connections?"
+- "Show me all blocked connections"
 
-**Protocol-Specific:**
-```
-- "Find Modbus communication errors"
-- "Show DNP3 timeout issues"
-- "List all SNMP traps received"
-```
+**BGL Dataset:**
+- "Are there any hardware failures in the logs?"
+- "Show all fatal errors"
+- "What caused the most system crashes?"
+- "Are there any memory failures?"
 
-**Troubleshooting:**
-```
-- "Why did device 5 fail?"
-- "Explain this timeout error"
-- "Root cause analysis for system outage"
-```
+**Upload Your Own File:**
+- Upload any CSV or TXT log file
+- Query it instantly with the same natural language interface
 
-### Advanced Features
+### Query Modes
 
-**Filters:**
-- Protocol filtering (Modbus, DNP3, SNMP, SSH, HTTP, FTP, Telnet, BACnet)
-- Severity filtering (Critical, High, Medium, Low, Info)
-
-**Analysis Modes:**
-- 📊 Analysis: Detailed examination
-- 📝 Summary: Quick overview
-- 🔒 Security: Security-focused
-- 🔧 Troubleshooting: Problem diagnosis
-
-**Conversation Memory:**
-- Ask follow-up questions
-- System remembers context
-- Export conversation history
+| Mode | Description | Best For |
+|------|-------------|----------|
+| **Fast** | Quick overview, 1–3s response | General queries |
+| **Detailed** | Deep analysis, 3–6s response | Investigation |
+| **Deep Analysis** | Comprehensive, 5–10s response | Full audit |
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     User Interface (Streamlit)               │
-│                                                               │
-│  ┌─────────────┐  ┌──────────────┐  ┌──────────────────┐   │
-│  │  Protocol   │  │  Severity    │  │  Analysis Mode   │   │
-│  │  Filters    │  │  Filters     │  │  Selection       │   │
-│  └─────────────┘  └──────────────┘  └──────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│              Conversational RAG System                       │
-│                                                               │
-│  ┌────────────────────────────────────────────────────────┐ │
-│  │  Query Processing & Expansion                          │ │
-│  └────────────────────────────────────────────────────────┘ │
-│                            ↓                                 │
-│  ┌────────────────────────────────────────────────────────┐ │
-│  │  BERT Embeddings (768-dim vectors)                     │ │
-│  └────────────────────────────────────────────────────────┘ │
-│                            ↓                                 │
-│  ┌────────────────────────────────────────────────────────┐ │
-│  │  FAISS Vector Search (<100ms)                          │ │
-│  └────────────────────────────────────────────────────────┘ │
-│                            ↓                                 │
-│  ┌────────────────────────────────────────────────────────┐ │
-│  │  Llama 3.1 (8B/70B) via Ollama                         │ │
-│  └────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│                     Response Generation                      │
-│  • Contextual answers with log citations                    │
-│  • Conversation history tracking                            │
-│  • Export capabilities                                      │
-└─────────────────────────────────────────────────────────────┘
+User Query (Natural Language)
+        ↓
+[1] BERT Embedding (768-dim vector)
+        ↓
+[2] FAISS Vector Search (top-K retrieval)
+        ↓
+[3] Context Assembly (retrieved logs + metadata)
+        ↓
+[4] Groq LLM Generation (llama-3.1-8b-instant)
+        ↓  [fallback if Groq fails]
+[4b] Gemini Flash Generation
+        ↓
+[5] Critical Keyword Detection → Email Alert
+        ↓
+Response + Alert Banner (if triggered)
 ```
 
 ### Technology Stack
 
-- **AI Model**: Llama 3.1 (8B/70B) via Ollama
-- **Embeddings**: BERT (bert-base-uncased)
-- **Vector DB**: FAISS with optimized indexing
-- **Framework**: Streamlit
-- **Language**: Python 3.8+
+| Component | Technology |
+|-----------|-----------|
+| **Primary LLM** | Groq — llama-3.1-8b-instant |
+| **Fallback LLM** | Google Gemini Flash |
+| **Embeddings (dataset)** | BERT (bert-base-uncased, 768-dim) |
+| **Embeddings (upload)** | MiniLM (all-MiniLM-L6-v2) |
+| **Vector Search** | FAISS (IndexFlatIP) |
+| **Web Framework** | Streamlit |
+| **Authentication** | SQLite + bcrypt |
+| **Alert Email** | Gmail SMTP (SSL) |
+| **Language** | Python 3.8+ |
 
 ---
 
-## 📊 Performance
-
-### Benchmarks
-
-| Metric | Performance |
-|--------|-------------|
-| **Search Speed** | <100ms |
-| **Generation Time (8B)** | 3-8 seconds |
-| **Generation Time (70B)** | 15-30 seconds |
-| **Embedding Speed** | 120+ logs/sec |
-| **Protocol Detection** | 8 protocols |
-| **Accuracy** | 95%+ relevance |
-
-### System Requirements
-
-**Minimum:**
-- CPU: 4 cores
-- RAM: 16GB
-- Storage: 10GB
-- Model: Llama 3.1 8B
-
-**Recommended:**
-- CPU: 8+ cores
-- RAM: 32GB
-- GPU: NVIDIA (8GB+ VRAM)
-- Storage: 20GB
-- Model: Llama 3.1 70B
-
----
-
-## 📚 Documentation
-
-- 📘 [**User Guide**](docs/USER_GUIDE.md) - Complete usage instructions
-- 🚀 [**Deployment Guide**](docs/DEPLOYMENT.md) - Production deployment
-- 🔧 [**Troubleshooting**](docs/TROUBLESHOOTING.md) - Common issues and solutions
-- 🏗️ [**Technical Docs**](docs/TECHNICAL.md) - Architecture and internals
-- 📡 [**API Reference**](docs/API.md) - API documentation
-
----
-
-## 🧪 Testing
-
-Run the complete test suite:
-
-```bash
-python tests/test_complete_system.py
-```
-
-**Test Coverage:**
-- ✅ Ollama connection
-- ✅ Protocol detection (8 protocols)
-- ✅ BERT embeddings generation
-- ✅ FAISS vector search
-- ✅ RAG system integration
-- ✅ Conversation memory
-- ✅ Data file integrity
-
-**Expected Output:**
-```
-✅ Passed:   7
-⚠️  Warnings: 0
-❌ Failed:   0
-⏱️  Total time: ~170s
-
-🎉 ALL TESTS PASSED!
-System is ready for deployment!
-```
-
----
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 ICS-LogQueryGPT/
 ├── src/
-│   ├── embeddings/           # BERT embedding generation
-│   ├── preprocessing/        # Log processing and protocol detection
-│   ├── rag_system/          # RAG and conversation management
-│   ├── ui/                  # Streamlit web interface
-│   └── vector_db/           # FAISS vector database
-├── tests/                   # Test suite
+│   ├── ui/
+│   │   ├── app.py                          # Home page
+│   │   ├── pages/
+│   │   │   ├── 0_Login.py                  # Login / Sign Up
+│   │   │   ├── 1_Query_Logs.py             # Main query interface
+│   │   │   ├── 2_Analytics.py              # Session analytics
+│   │   │   ├── 3_Export.py                 # Export center
+│   │   │   ├── 5_Admin.py                  # Admin dashboard
+│   │   │   └── 6_Benchmark.py              # Metrics evaluation (admin only)
+│   │   ├── auth/
+│   │   │   ├── user_manager.py             # User CRUD + bcrypt
+│   │   │   └── session.py                  # Session management
+│   │   └── utils/
+│   │       └── alert_system.py             # Critical alert + email
+│   ├── rag_system/
+│   │   ├── basic_rag_ollama.py             # Groq + Gemini LLM
+│   │   └── integrated_rag_ollama.py        # Full RAG pipeline
+│   └── evaluation/
+│       ├── metrics.py                      # Precision@K, Recall@K, MRR, NDCG
+│       └── benchmark.py                    # Performance benchmarking
 ├── data/
-│   ├── raw/                 # Raw log files
-│   ├── processed_logs/      # Processed CSV files
-│   └── embeddings/          # Vector embeddings
-├── docs/                    # Documentation
-├── requirements.txt         # Python dependencies
-└── README.md               # This file
+│   └── vector_db/
+│       ├── HDFS_index.faiss                # HDFS FAISS index
+│       ├── HDFS_metadata.pkl               # HDFS metadata
+│       ├── BGL_index.faiss                 # BGL FAISS index
+│       └── BGL_metadata.pkl                # BGL metadata
+├── build_bgl_index.py                      # Run once to build BGL index
+├── auth_logs_1000.csv                      # Sample log file for testing
+├── .env                                    # API keys (not in git)
+├── requirements.txt
+└── README.md
 ```
 
 ---
 
-## 🤝 Contributing
+## Performance
 
-We welcome contributions! Here's how:
+### Benchmark Results
 
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/AmazingFeature`)
-3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
-4. **Push** to the branch (`git push origin feature/AmazingFeature`)
-5. **Open** a Pull Request
+| Metric | Score | Interpretation |
+|--------|-------|----------------|
+| **Recall@5** | **1.000** | Perfect — all relevant logs found |
+| **MRR** | **1.000** | Perfect — relevant log always ranked #1 |
+| **Precision@5** | 0.400 | 2 of top-5 retrieved logs are relevant |
+| **ROUGE-1** | 0.092 | Consistent with open-domain RAG systems |
+| **BLEU** | 0.022 | Normal for paraphrasing-based generation |
+| **Avg Response Time** | ~7.4s | Acceptable for BERT + Groq RAG pipeline |
 
-### Development Setup
+> Recall@5 = 1.0 and MRR = 1.0 confirm the BERT + FAISS retrieval system is perfect — every relevant log entry is retrieved in the top 5 results for every test query.
 
-```bash
-# Clone your fork
-git clone https://github.com/yourusername/ICS-LogQueryGPT.git
-cd ICS-LogQueryGPT
+### System Requirements
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate
+| | Minimum | Recommended |
+|--|---------|-------------|
+| **CPU** | 4 cores | 8+ cores |
+| **RAM** | 8GB | 16GB |
+| **Storage** | 5GB | 10GB |
+| **Internet** | Required (Groq API) | Required |
 
-# Install dev dependencies
-pip install -r requirements-dev.txt
+---
 
-# Run tests
-python tests/test_complete_system.py
+## Documentation
+
+- [User Guide](docs/USER_GUIDE.md) — Complete usage instructions
+- [Deployment Guide](docs/DEPLOYMENT.md) — Local and Docker deployment
+- [Technical Documentation](docs/TECHNICAL.md) — Architecture and internals
+- [Troubleshooting](docs/TROUBLESHOOTING.md) — Common issues and solutions
+- [Quick Reference](docs/QUICK_REFERENCE.md) — Cheat sheet
+
+---
+
+## Alert System
+
+When a query response contains critical keywords (attack, brute force, unauthorized, blocked, fatal, critical, etc.), the system automatically:
+
+1. Shows a red/yellow alert banner in the UI
+2. Sends an HTML email to the configured recipient instantly
+
+To configure alerts, set these in your `.env` file:
+```
+ALERT_EMAIL=sender@gmail.com
+ALERT_EMAIL_PASSWORD=your_app_password
+ALERT_RECIPIENT=recipient@gmail.com
 ```
 
 ---
 
-## 🛣️ Roadmap
+## License
 
-### ✅ Completed (v1.0)
-- [x] Local LLM integration (Ollama)
-- [x] BERT embeddings
-- [x] FAISS vector search
-- [x] Protocol detection (8 protocols)
-- [x] Conversational memory
-- [x] Web UI with Streamlit
-- [x] Complete test suite
-
-### 🚧 In Progress (v1.1)
-- [ ] Docker deployment
-- [ ] Multi-dataset support
-- [ ] Advanced analytics dashboard
-- [ ] API endpoints
-
-### 🔮 Future (v2.0)
-- [ ] Real-time log streaming
-- [ ] Email/Slack alerts
-- [ ] Multi-language support
-- [ ] Custom model fine-tuning
-- [ ] Cloud deployment options
+This project is licensed under the MIT License.
 
 ---
 
-## ❓ FAQ
+**Built with Space Grotesk, BERT, FAISS, Groq, and Streamlit**
 
-**Q: Do I need an internet connection?**  
-A: Only for initial setup (downloading Ollama and models). After that, 100% offline.
-
-**Q: Is my data sent to any external servers?**  
-A: No. All processing happens locally on your machine.
-
-**Q: Can I use my own log files?**  
-A: Yes! See the [User Guide](docs/USER_GUIDE.md) for instructions.
-
-**Q: How much does it cost?**  
-A: Free! One-time setup, no recurring costs.
-
-**Q: Can I run this on a laptop?**  
-A: Yes, with the 8B model. 70B requires a GPU.
-
-**Q: How accurate is it compared to GPT-4?**  
-A: Llama 3.1 is very capable. For ICS logs, accuracy is comparable.
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-```
-MIT License
-
-Copyright (c) 2026 ICS-LogQueryGPT Team
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction...
-```
-
----
-
-## 🙏 Acknowledgments
-
-- **Meta AI** for Llama 3.1
-- **Ollama** for local LLM serving
-- **HuggingFace** for BERT models
-- **FAISS** by Facebook Research
-- **Streamlit** for the UI framework
-- The open-source community
-
----
-
-## 📞 Contact & Support
-
-- **Issues**: [GitHub Issues](https://github.com/yourusername/ICS-LogQueryGPT/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/ICS-LogQueryGPT/discussions)
-- **Email**: team@example.com
-- **Documentation**: [Full Docs](docs/)
-
----
-
-## ⭐ Show Your Support
-
-If you find this project useful, please consider:
-- ⭐ Starring the repository
-- 🐛 Reporting bugs
-- 💡 Suggesting features
-- 🤝 Contributing code
-- 📢 Sharing with others
-
----
-
-**Built with ❤️ for the ICS/SCADA community**
-
-*Last Updated: January 21, 2026 | Version 1.0.0*
+*Version 1.0.0 — Last Updated: March 2026*

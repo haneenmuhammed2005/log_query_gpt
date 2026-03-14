@@ -34,8 +34,8 @@ def logout_user():
     st.session_state.clear()
 
 st.set_page_config(
-    page_title="Export — ICS LogQuery GPT",
-    page_icon="",
+    page_title="Export — ICS-LogQueryGPT",
+    page_icon="🛡",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -208,8 +208,8 @@ def render_sidebar():
                     border:1px solid rgba(0,170,255,0.35);border-radius:10px;display:flex;align-items:center;
                     justify-content:center;font-size:18px;"></div>
                 <div>
-                    <div style="font-size:14px;font-weight:800;color:#c0ddf0;letter-spacing:0.04em;line-height:1.2;">ICS LogQuery</div>
-                    <div style="font-size:10px;font-weight:600;color:#3a5a7a;letter-spacing:0.1em;text-transform:uppercase;">GPT Platform</div>
+                    <div style="font-size:13.5px;font-weight:700;letter-spacing:-0.4px;background:linear-gradient(135deg,#fff 30%,#00aaff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">ICS-LogQueryGPT</div>
+                    <div style="font-size:9.5px;color:#3a6090;letter-spacing:0.1em;text-transform:uppercase;">Security Intelligence</div>
                 </div>
             </div>
         </div>
@@ -245,34 +245,23 @@ def render_sidebar():
 
         st.markdown("<hr style='border-color:rgba(0,170,255,0.1);margin:12px 0;'>", unsafe_allow_html=True)
 
-        username = st.session_state.get("username", "admin")
+        _username = st.session_state.get('username', 'user')
+        _role     = st.session_state.get('user_role', 'analyst').lower()
+        _all_roles = [('Admin','admin'), ('Analyst','analyst'), ('Read-Only','viewer')]
+        _rows_html = ""
+        for label, key in _all_roles:
+            is_active = (_role == key)
+            if is_active:
+                _rows_html += f'''<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,170,255,0.09);border:1px solid rgba(0,170,255,0.25);border-radius:7px;padding:6px 10px;margin-bottom:5px;"><div style="display:flex;align-items:center;gap:7px;"><span style="width:6px;height:6px;border-radius:50%;background:#00aaff;box-shadow:0 0 8px rgba(0,170,255,0.8);display:inline-block;"></span><span style="font-size:11.5px;font-weight:600;color:#a0c8e8;">{label}</span></div><span style="font-size:9px;background:rgba(0,170,255,0.15);border:1px solid rgba(0,170,255,0.3);border-radius:4px;padding:1px 6px;color:#00aaff;font-weight:700;">ACTIVE</span></div>'''
+            else:
+                _rows_html += f'''<div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.018);border:1px solid rgba(255,255,255,0.055);border-radius:7px;padding:6px 10px;margin-bottom:5px;"><span style="width:6px;height:6px;border-radius:50%;background:#2a4a6a;display:inline-block;"></span><span style="font-size:11.5px;font-weight:500;color:#4a6a8a;">{label}</span></div>'''
         st.markdown(f"""
-        <div style="font-size:10px;font-weight:600;color:#7aa0c0;margin-bottom:10px;">
-            Logged in as: <span style="color:#a0c8e8;">{username}</span>
+        <div style="font-size:10px;color:#5a8ab0;margin:10px 2px 10px;">
+            Logged in as: <span style="color:#8ab0d0;font-weight:700;">{_username}</span>
         </div>
-        <div style="font-size:9px;font-weight:800;color:#3a5a7a;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:8px;">Access Roles</div>
-        <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:14px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;
-                background:rgba(0,170,255,0.09);border:1px solid rgba(0,170,255,0.25);border-radius:7px;padding:6px 10px;">
-                <div style="display:flex;align-items:center;">
-                    <span style="width:6px;height:6px;border-radius:50%;background:#00aaff;
-                        box-shadow:0 0 8px rgba(0,170,255,0.8);display:inline-block;margin-right:7px;"></span>
-                    <span style="font-size:11.5px;font-weight:700;color:#c0ddf0;">Admin</span>
-                </div>
-                <span style="font-size:9px;background:rgba(0,170,255,0.15);border:1px solid rgba(0,170,255,0.3);
-                    border-radius:4px;padding:1px 6px;color:#00aaff;font-weight:800;letter-spacing:0.05em;">ACTIVE</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.018);
-                border:1px solid rgba(255,255,255,0.055);border-radius:7px;padding:6px 10px;">
-                <span style="width:6px;height:6px;border-radius:50%;background:#2a4a6a;display:inline-block;"></span>
-                <span style="font-size:11.5px;font-weight:600;color:#4a6a8a;">Security Operator</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.018);
-                border:1px solid rgba(255,255,255,0.055);border-radius:7px;padding:6px 10px;">
-                <span style="width:6px;height:6px;border-radius:50%;background:#2a4a6a;display:inline-block;"></span>
-                <span style="font-size:11.5px;font-weight:600;color:#4a6a8a;">Read-Only</span>
-            </div>
-        </div>
+        <div style="font-size:9px;font-weight:700;color:#3a5a7a;text-transform:uppercase;
+            letter-spacing:0.15em;margin-bottom:8px;">Access Roles</div>
+        <div style="margin-bottom:12px;">{_rows_html}</div>
         """, unsafe_allow_html=True)
 
 
@@ -335,7 +324,7 @@ def get_sample_data():
     })
 
 
-def render_preview_and_export(df, export_format, inc_ts, inc_src, inc_sev):
+def render_preview_and_export(df, export_format, inc_ts, inc_src, inc_sev, feed_label="Your Data"):
     col_left, col_right = st.columns([3, 2], gap="large")
     total = len(df)
 
@@ -345,28 +334,42 @@ def render_preview_and_export(df, export_format, inc_ts, inc_src, inc_sev):
         <div style="background:rgba(0,15,45,0.65);border:1px solid rgba(0,170,255,0.18);border-radius:12px;overflow:hidden;margin-bottom:14px;">
             <div style="display:flex;align-items:center;justify-content:space-between;
                 padding:10px 14px 8px;border-bottom:1px solid rgba(0,170,255,0.12);background:rgba(0,25,55,0.8);">
-                <span style="font-size:11px;font-weight:700;color:#7aa0c0;">Log Feed — Jan 15, 2024</span>
+                <span style="font-size:11px;font-weight:700;color:#7aa0c0;">{feed_label}</span>
                 <span style="font-size:10px;font-weight:700;color:#3a5a7a;background:rgba(0,170,255,0.08);
                     border:1px solid rgba(0,170,255,0.15);border-radius:4px;padding:2px 8px;">{total} records</span>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-        display_cols = ["Timestamp","Source IP","Protocol","Event","Severity","Status"]
-        if not inc_ts:  display_cols = [c for c in display_cols if c != "Timestamp"]
-        if not inc_src: display_cols = [c for c in display_cols if c != "Source IP"]
-        if not inc_sev: display_cols = [c for c in display_cols if c != "Severity"]
+        # Show all available columns
+        display_cols = list(df.columns)
+        if not inc_ts:  display_cols = [c for c in display_cols if c.lower() not in ["timestamp","time","login time"]]
+        if not inc_src: display_cols = [c for c in display_cols if c.lower() not in ["source ip","source"]]
+        if not inc_sev: display_cols = [c for c in display_cols if c.lower() not in ["severity"]]
+        display_cols = [c for c in display_cols if c in df.columns]
 
         st.dataframe(df[display_cols], use_container_width=True, height=260, hide_index=True)
 
-        critical = len(df[df["Severity"] == "CRITICAL"])
-        blocked  = len(df[df["Status"]   == "BLOCKED"])
         fmt_name = export_format.split("(")[0].strip()
+        # Stats based on actual columns available
+        has_severity = "Severity" in df.columns
+        has_status   = "Status" in df.columns
+        critical = len(df[df["Severity"] == "CRITICAL"]) if has_severity else 0
+        blocked  = len(df[df["Status"]   == "BLOCKED"])  if has_status  else 0
+
         m1, m2, m3, m4 = st.columns(4)
-        with m1: st.metric("Total Records",  f"{total:,}")
-        with m2: st.metric("Critical Events", critical, delta="↑ 2 new", delta_color="inverse")
-        with m3: st.metric("Blocked",         blocked)
-        with m4: st.metric("Format",          fmt_name)
+        with m1: st.metric("Total Records", f"{total:,}")
+        with m2:
+            if has_severity:
+                st.metric("Critical Events", critical)
+            else:
+                st.metric("Datasets Used", len(set(df.get("Source", df.get("source", pd.Series(["N/A"]))).tolist())) if "Source" in df.columns or "source" in df.columns else "N/A")
+        with m3:
+            if has_status:
+                st.metric("Blocked", blocked)
+            else:
+                st.metric("Queries", total)
+        with m4: st.metric("Format", fmt_name)
 
     with col_right:
         fmt_clean = export_format.split("(")[0].strip()
@@ -418,53 +421,117 @@ def render_preview_and_export(df, export_format, inc_ts, inc_src, inc_sev):
             export_data = df[display_cols].to_string(index=False).encode("utf-8")
             mime = "text/plain"
 
-        st.download_button(
-            label=f"  Download  {fmt_clean}",
+        clicked = st.download_button(
+            label=f"Download {fmt_clean}",
             data=export_data,
             file_name=filename,
             mime=mime,
             use_container_width=True,
             key="main_download",
         )
+        if clicked:
+            if "export_history" not in st.session_state:
+                st.session_state.export_history = []
+            st.session_state.export_history.append({
+                "Date":    datetime.now().strftime("%Y-%m-%d %H:%M"),
+                "Format":  fmt_clean,
+                "Records": total,
+                "Size":    f"{size_kb} KB",
+                "Trigger": "Manual",
+                "Status":  "SUCCESS",
+            })
 
 
 def render_templates():
     st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
-    st.markdown('<div style="font-size:9px;font-weight:800;color:#5a7a9a;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px;"> Export Templates</div>', unsafe_allow_html=True)
+    st.markdown('<div style="font-size:9px;font-weight:800;color:#5a7a9a;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px;">Export Templates</div>', unsafe_allow_html=True)
+
+    query_history = st.session_state.get("query_history", [])
+    current = st.session_state.get("current_results", {})
+
+    # Build real data from session for templates
+    def get_template_df(template_type):
+        if not query_history:
+            return pd.DataFrame(), 0
+        rows = []
+        for q in query_history:
+            row = {
+                "Timestamp":     q.get("timestamp", ""),
+                "Query":         q.get("query", ""),
+                "Source":        q.get("source", q.get("protocol", "")),
+                "Mode":          q.get("mode", ""),
+                "Response Time": current.get("response_time","") if q == query_history[-1] and current else "",
+            }
+            if template_type == "security" and current and q == query_history[-1]:
+                row["Answer"] = current.get("answer","")[:300]
+            elif template_type == "traffic":
+                row.pop("Response Time", None)
+            elif template_type == "incident":
+                row["Logs Analyzed"] = current.get("log_count","") if q == query_history[-1] and current else ""
+            rows.append(row)
+        df = pd.DataFrame(rows)
+        return df, len(df)
 
     templates = [
-        {"name":"Security Report",  "desc":"All CRITICAL and HIGH severity events with source IPs, protocols, and block status.",
-         "fields":"Timestamp, Source IP, Protocol, Severity, Status","records":"~240 records","accent":"#ff4444","icon":""},
-        {"name":"Traffic Analysis", "desc":"Full protocol breakdown with event types. Ideal for network forensics investigations.",
-         "fields":"Timestamp, Protocol, Event, Source IP","records":"~1,200 records","accent":"#00aaff","icon":""},
-        {"name":"Incident Report",  "desc":"Blocked and flagged events only with full metadata for compliance filing.",
-         "fields":"All fields + metadata","records":"~85 records","accent":"#ffaa00","icon":""},
+        {
+            "name": "Security Report",
+            "desc": "All queries with AI answers — ideal for security incident documentation.",
+            "fields": "Timestamp, Query, Source, Answer",
+            "accent": "#ff4444",
+            "type": "security",
+        },
+        {
+            "name": "Traffic Analysis",
+            "desc": "Query timeline with dataset sources and modes used.",
+            "fields": "Timestamp, Query, Source, Mode",
+            "accent": "#00aaff",
+            "type": "traffic",
+        },
+        {
+            "name": "Incident Report",
+            "desc": "Full query log with response times and logs analyzed count.",
+            "fields": "Timestamp, Query, Source, Response Time, Logs Analyzed",
+            "accent": "#ffaa00",
+            "type": "incident",
+        },
     ]
 
     cols = st.columns(3, gap="medium")
     for col, t in zip(cols, templates):
         with col:
+            df_tmpl, count = get_template_df(t["type"])
+            records_label = f"{count} records" if count > 0 else "No queries yet"
             st.markdown(f"""
             <div style="background:rgba(0,12,35,0.7);border:1px solid rgba(255,255,255,.07);
-                border-radius:13px;overflow:hidden;transition:border-color .2s,box-shadow .2s;cursor:pointer;"
-                onmouseover="this.style.borderColor='rgba(0,170,255,.28)';this.style.boxShadow='0 4px 18px rgba(0,170,255,.09)'"
-                onmouseout="this.style.borderColor='rgba(255,255,255,.07)';this.style.boxShadow='none'">
+                border-radius:13px;overflow:hidden;">
                 <div style="height:4px;background:linear-gradient(90deg,{t['accent']},transparent);"></div>
                 <div style="padding:16px 18px;">
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                        <span style="font-size:18px;">{t['icon']}</span>
-                        <span style="font-size:13.5px;font-weight:800;color:#c0ddf0;">{t['name']}</span>
-                    </div>
+                    <div style="font-size:13.5px;font-weight:800;color:#c0ddf0;margin-bottom:8px;">{t['name']}</div>
                     <div style="font-size:12px;font-weight:500;color:#6a8aaa;line-height:1.5;margin-bottom:12px;">{t['desc']}</div>
                     <div style="font-size:10px;font-weight:700;color:#3a5a7a;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">Fields</div>
                     <div style="font-size:11px;font-weight:600;color:#5a7a9a;margin-bottom:10px;">{t['fields']}</div>
                     <div style="display:inline-block;font-size:10px;font-weight:700;color:{t['accent']};
                         background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-                        border-radius:5px;padding:2px 8px;">{t['records']}</div>
+                        border-radius:5px;padding:2px 8px;">{records_label}</div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
-            st.button("Use Template", key=f"tmpl_{t['name']}", use_container_width=True)
+
+            if count > 0:
+                # Make Use Template actually download the right data
+                csv_data = df_tmpl.to_csv(index=False).encode("utf-8")
+                fname = f"ics_{t['type']}_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
+                st.download_button(
+                    label="Use Template",
+                    data=csv_data,
+                    file_name=fname,
+                    mime="text/csv",
+                    key=f"tmpl_{t['type']}",
+                    use_container_width=True
+                )
+            else:
+                st.button("Use Template — run queries first", key=f"tmpl_{t['type']}_empty",
+                          use_container_width=True, disabled=True)
 
 
 def render_scheduled_exports():
@@ -488,46 +555,79 @@ def render_scheduled_exports():
         sched_format = st.selectbox("Export Format", ["CSV (.csv)","JSON (.json)","Markdown (.md)"], key="sched_fmt")
         email        = st.text_input("Delivery Email", placeholder="security@company.com", key="sched_email")
         enabled      = st.checkbox("Enable scheduled export", value=False, key="sched_enable")
-        if st.button("  Save Schedule", key="save_schedule"):
-            if enabled and email:
-                st.success(f" Scheduled {frequency.lower()} export → {email}")
-            elif not email:
+        if st.button("Save Schedule", key="save_schedule"):
+            if enabled and not email:
                 st.warning("Please enter a delivery email address.")
             else:
-                st.info("Schedule saved (disabled).")
+                st.session_state.sched_enabled_saved = enabled
+                st.session_state.sched_saved = True
+                if enabled and email:
+                    st.success(f"Schedule saved — {frequency.lower()} export will be sent to {email}")
+                else:
+                    st.info("Schedule saved (disabled). Check the box to activate.")
+                st.rerun()
 
     with col_b:
-        st.markdown("""
+        # Read actual selections from session state
+        sel_freq    = st.session_state.get("sched_freq", "Daily")
+        sel_time    = st.session_state.get("sched_time", None)
+        sel_fmt     = st.session_state.get("sched_fmt", "CSV (.csv)").split("(")[0].strip()
+        sel_email   = st.session_state.get("sched_email", "")
+        sel_enabled = st.session_state.get("sched_enabled_saved", False)
+        sel_saved   = st.session_state.get("sched_saved", False)
+        deliveries  = st.session_state.get("sched_deliveries", 0)
+        last_export = st.session_state.get("sched_last_export", "Never")
+
+        # Compute next run based on selections
+        from datetime import datetime, timedelta
+        now = datetime.now()
+        if sel_time:
+            next_run_str = f"Today {sel_time} UTC" if sel_time > now.time() else f"Tomorrow {sel_time} UTC"
+        else:
+            next_run_str = "Not set"
+
+        status_color = "rgba(0,170,255,.12)', border:'1px solid rgba(0,170,255,.3)', color:'#00aaff" if sel_enabled else "rgba(255,170,0,.12)', border:'1px solid rgba(255,170,0,.3)', color:'#ffaa00"
+        status_text  = "ACTIVE" if sel_enabled else "INACTIVE"
+        status_bg    = "rgba(0,170,255,.12)" if sel_enabled else "rgba(255,170,0,.12)"
+        status_border= "rgba(0,170,255,.3)"  if sel_enabled else "rgba(255,170,0,.3)"
+        status_clr   = "#00aaff"             if sel_enabled else "#ffaa00"
+        footer_msg   = "Schedule is active — exports will run automatically" if sel_enabled else "Schedule not yet active — toggle to enable"
+
+        st.markdown(f"""
         <div style="background:rgba(0,170,255,.06);border:1px solid rgba(0,170,255,.18);border-radius:13px;padding:20px;">
             <div style="font-size:9px;font-weight:800;color:#3a5a7a;text-transform:uppercase;letter-spacing:.15em;margin-bottom:8px;">Schedule Status</div>
             <div style="border-bottom:1px solid rgba(0,170,255,.07);padding:10px 0;display:flex;justify-content:space-between;align-items:center;">
                 <span style="font-size:12px;font-weight:600;color:#5a7a9a;">Status</span>
-                <span style="font-size:11px;font-weight:700;background:rgba(255,170,0,.12);border:1px solid rgba(255,170,0,.3);color:#ffaa00;border-radius:5px;padding:2px 8px;">INACTIVE</span>
+                <span style="font-size:11px;font-weight:700;background:{status_bg};border:1px solid {status_border};color:{status_clr};border-radius:5px;padding:2px 8px;">{status_text}</span>
             </div>
             <div style="border-bottom:1px solid rgba(0,170,255,.07);padding:10px 0;display:flex;justify-content:space-between;">
                 <span style="font-size:12px;font-weight:600;color:#5a7a9a;">Frequency</span>
-                <span style="font-size:12px;font-weight:700;color:#8ab0cc;">Daily</span>
+                <span style="font-size:12px;font-weight:700;color:#8ab0cc;">{sel_freq}</span>
             </div>
             <div style="border-bottom:1px solid rgba(0,170,255,.07);padding:10px 0;display:flex;justify-content:space-between;">
                 <span style="font-size:12px;font-weight:600;color:#5a7a9a;">Next Run</span>
-                <span style="font-size:12px;font-weight:700;color:#8ab0cc;">Tomorrow 06:00 UTC</span>
+                <span style="font-size:12px;font-weight:700;color:#8ab0cc;">{next_run_str}</span>
+            </div>
+            <div style="border-bottom:1px solid rgba(0,170,255,.07);padding:10px 0;display:flex;justify-content:space-between;">
+                <span style="font-size:12px;font-weight:600;color:#5a7a9a;">Email</span>
+                <span style="font-size:12px;font-weight:700;color:#8ab0cc;">{sel_email if sel_email else "Not set"}</span>
             </div>
             <div style="border-bottom:1px solid rgba(0,170,255,.07);padding:10px 0;display:flex;justify-content:space-between;">
                 <span style="font-size:12px;font-weight:600;color:#5a7a9a;">Last Export</span>
-                <span style="font-size:12px;font-weight:700;color:#8ab0cc;">Never</span>
+                <span style="font-size:12px;font-weight:700;color:#8ab0cc;">{last_export}</span>
             </div>
             <div style="border-bottom:1px solid rgba(0,170,255,.07);padding:10px 0;display:flex;justify-content:space-between;">
                 <span style="font-size:12px;font-weight:600;color:#5a7a9a;">Deliveries</span>
-                <span style="font-size:12px;font-weight:700;color:#8ab0cc;">0 sent</span>
+                <span style="font-size:12px;font-weight:700;color:#8ab0cc;">{deliveries} sent</span>
             </div>
             <div style="padding:10px 0;display:flex;justify-content:space-between;">
                 <span style="font-size:12px;font-weight:600;color:#5a7a9a;">Format</span>
-                <span style="font-size:12px;font-weight:700;color:#8ab0cc;">CSV</span>
+                <span style="font-size:12px;font-weight:700;color:#8ab0cc;">{sel_fmt}</span>
             </div>
             <div style="margin-top:8px;padding-top:12px;border-top:1px solid rgba(0,170,255,.07);
                 font-size:10px;font-weight:600;color:#3a5a7a;display:flex;align-items:center;gap:6px;">
-                <span style="width:5px;height:5px;border-radius:50%;background:#3a5a7a;display:inline-block;"></span>
-                Schedule not yet active — toggle to enable
+                <span style="width:5px;height:5px;border-radius:50%;background:{'#00aaff' if sel_enabled else '#3a5a7a'};display:inline-block;"></span>
+                {footer_msg}
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -535,38 +635,42 @@ def render_scheduled_exports():
 
 def render_export_history():
     st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
-    st.markdown("""
+
+    # Track downloads in session state
+    if "export_history" not in st.session_state:
+        st.session_state.export_history = []
+
+    history = st.session_state.export_history
+    total_kb = sum(e.get("size_kb", 0) for e in history)
+
+    st.markdown(f"""
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-        <div style="font-size:9px;font-weight:800;color:#5a7a9a;text-transform:uppercase;letter-spacing:.18em;"> Export History</div>
+        <div style="font-size:9px;font-weight:800;color:#5a7a9a;text-transform:uppercase;letter-spacing:.18em;">Export History</div>
         <div style="font-size:11px;font-weight:600;color:#4a6a8a;background:rgba(0,170,255,0.06);
             border:1px solid rgba(0,170,255,0.12);border-radius:6px;padding:4px 12px;">
-            5 exports · Last 7 days · 228 KB total
+            {len(history)} exports this session · {round(total_kb,1)} KB total
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    df_hist = pd.DataFrame({
-        "Date":    ["2024-01-14 22:01","2024-01-13 06:00","2024-01-12 06:00","2024-01-11 06:00","2024-01-10 14:35"],
-        "Format":  ["CSV","JSON","CSV","Markdown","CSV"],
-        "Records": [1204, 856, 1100, 932, 740],
-        "Size":    ["48 KB","71 KB","42 KB","38 KB","29 KB"],
-        "Trigger": ["Manual","Auto","Auto","Auto","Manual"],
-        "Status":  ["SUCCESS","SUCCESS","SUCCESS","SUCCESS","SUCCESS"],
-    })
-    st.dataframe(
-        df_hist,
-        use_container_width=True,
-        height=230,
-        hide_index=True,
-        column_config={
-            "Date":    st.column_config.TextColumn("Date",    width="medium"),
-            "Format":  st.column_config.TextColumn("Format",  width="small"),
-            "Records": st.column_config.NumberColumn("Records", width="small", format="%d"),
-            "Size":    st.column_config.TextColumn("Size",    width="small"),
-            "Trigger": st.column_config.TextColumn("Trigger", width="small"),
-            "Status":  st.column_config.TextColumn("Status",  width="medium"),
-        },
-    )
+    if not history:
+        st.info("No exports yet this session. Download a file above to see history here.")
+    else:
+        df_hist = pd.DataFrame(history)
+        st.dataframe(
+            df_hist,
+            use_container_width=True,
+            height=230,
+            hide_index=True,
+            column_config={
+                "Date":    st.column_config.TextColumn("Date",    width="medium"),
+                "Format":  st.column_config.TextColumn("Format",  width="small"),
+                "Records": st.column_config.NumberColumn("Records", width="small"),
+                "Size":    st.column_config.TextColumn("Size",    width="small"),
+                "Trigger": st.column_config.TextColumn("Trigger", width="small"),
+                "Status":  st.column_config.TextColumn("Status",  width="small"),
+            }
+        )
 
 
 def render_footer():
@@ -602,29 +706,27 @@ def main():
     render_page_header()
 
     query_history = st.session_state.get("query_history", [])
-    current = st.session_state.get("current_results", {})
-    data_source_val = data_source if 'data_source' in dir() else "Query Results"
+    current       = st.session_state.get("current_results", {})
 
-    if query_history and data_source_val == "Query Results":
-        df = pd.DataFrame([{
-            "Timestamp": q.get("timestamp",""),
-            "Query": q.get("query",""),
-            "Source": q.get("source", q.get("protocol","")),
-            "Mode": q.get("mode",""),
-        } for q in query_history])
-    elif current and current.get("answer") and data_source_val != "All Logs":
-        df = pd.DataFrame([{
-            "Timestamp": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "Query": q.get("query","") if query_history else "",
-            "Answer": current.get("answer","")[:300],
-            "Source": ", ".join(current.get("sources",[])),
-            "Response Time": current.get("response_time",""),
-            "Logs Analyzed": current.get("log_count",""),
-        } for q in (query_history if query_history else [{}])])
+    if query_history:
+        # Build export from real query history
+        rows = []
+        for q in query_history:
+            rows.append({
+                "Timestamp":   q.get("timestamp", ""),
+                "Query":       q.get("query", ""),
+                "Source":      q.get("source", q.get("protocol", "")),
+                "Mode":        q.get("mode", ""),
+                "Response Time": str(current.get("response_time","")) if q == query_history[-1] and current else "",
+                "Answer":      current.get("answer","")[:200] if q == query_history[-1] and current else "",
+            })
+        df = pd.DataFrame(rows)
+        feed_label = f"Query History — {len(rows)} queries from this session"
     else:
         df = get_sample_data()
+        feed_label = "Sample Data — run queries to export real results"
 
-    render_preview_and_export(df, export_format, inc_ts, inc_src, inc_sev)
+    render_preview_and_export(df, export_format, inc_ts, inc_src, inc_sev, feed_label)
     render_templates()
     render_scheduled_exports()
     render_export_history()
