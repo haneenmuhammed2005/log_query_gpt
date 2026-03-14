@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --left-bg:   #0a0f1a;
+    --right-bg:  #111827;
+    --card-bg:   #1a2235;
+    --border:    rgba(255,255,255,0.07);
+    --border2:   rgba(255,255,255,0.12);
+    --cyan:      #38bdf8;
+    --cyan-dim:  rgba(56,189,248,0.12);
+    --text:      #e2e8f0;
+    --text-dim:  #64748b;
+    --text-mute: #2a3a4a;
+}
+
+html, body {
+    height: 100%; width: 100%;
+    font-family: 'Inter', sans-serif;
+    background: var(--left-bg);
+    overflow: hidden;
+}
+body::before {
+    content: '';
+    position: fixed; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    opacity: 0.55; z-index: 99;
+}
+.layout { display: flex; height: 100vh; width: 100%; }
+
+/* ══ LEFT ══ */
+.left {
+    width: 50%;
+    background: var(--left-bg);
+    padding: 36px 40px;
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+    border-right: 1px solid var(--border);
+    position: relative; overflow: hidden;
+}
+.left::before {
+    content: '';
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+        linear-gradient(rgba(56,189,248,0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56,189,248,0.07) 1px, transparent 1px);
+    background-size: 48px 48px;
+}
+.left::after {
+    content: '';
+    position: absolute; top: -120px; left: -120px;
+    width: 440px; height: 440px; pointer-events: none;
+    background: radial-gradient(circle, rgba(56,189,248,0.07) 0%, transparent 65%);
+}
+
+.brand { position: relative; z-index: 1; }
+
+.live-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--cyan-dim); border: 1px solid rgba(56,189,248,0.28);
+    border-radius: 20px; padding: 5px 14px;
+    font-size: 11px; font-weight: 600; color: var(--cyan);
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px;
+}
+.live-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--cyan); box-shadow: 0 0 6px var(--cyan);
+    animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.35;transform:scale(0.8)} }
+
+.brand-title {
+    font-size: 46px; font-weight: 800; line-height: 1.05;
+    letter-spacing: -1.5px; color: var(--text); margin-bottom: 16px;
+}
+.brand-title span { color: var(--cyan); }
+
+.brand-sub {
+    font-size: 13.5px; color: var(--text-dim);
+    line-height: 1.7; margin-bottom: 26px; max-width: 360px;
+}
+
+/* feature list — span instead of i fixes icon rendering */
+.feature-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+.feature-list li {
+    display: flex; align-items: flex-start; gap: 12px;
+    font-size: 13.5px; color: #64748b; line-height: 1.5;
+}
+.feat-icon {
+    width: 24px; height: 24px; border-radius: 6px;
+    background: var(--cyan-dim); border: 1px solid rgba(56,189,248,0.25);
+    flex-shrink: 0; display: flex; align-items: center;
+    justify-content: center; font-size: 12px;
+}
+
+/* pipeline box fills empty middle space */
+.pipeline-box {
+    position: relative; z-index: 1;
+    margin-top: 0px; padding: 18px 20px;
+    background: rgba(56,189,248,0.03);
+    border: 1px solid rgba(56,189,248,0.1);
+    border-radius: 12px;
+}
+.pipeline-label {
+    font-size: 10px; font-weight: 700; color: #64748b;
+    letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 14px;
+}
+.pipeline { display: flex; align-items: center; width: 100%; }
+.p-step {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 5px 6px; border-radius: 7px;
+    transition: all 0.35s ease; flex: 1; min-width: 0;
+}
+.p-step.active { background: var(--cyan-dim); }
+.p-name { font-size: 12px; font-weight: 700; color: #475569; transition: color 0.35s; white-space: nowrap; }
+.p-sub  { font-size: 10px; font-weight: 600; color: #334155; opacity: 0.8; transition: color 0.35s; white-space: nowrap; }
+.p-step.active .p-name { color: var(--cyan); }
+.p-step.active .p-sub  { color: var(--cyan); opacity: 0.7; }
+.p-arrow { font-size: 10px; font-weight: 700; color: #334155; padding: 0 1px; flex-shrink: 0; transition: color 0.35s; }
+.p-arrow.lit { color: rgba(56,189,248,0.5); }
+
+/* bottom stats */
+.bottom { position: relative; z-index: 1; }
+.stats-line {
+    font-size: 13px; color: #94a3b8;
+    font-weight: 600; letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+.stats-line .sep { color: var(--text-mute); margin: 0 6px; }
+
+/* ══ RIGHT ══ */
+.right {
+    width: 50%;
+    background: var(--right-bg);
+    display: flex; align-items: center; justify-content: center;
+    padding: 36px 48px; position: relative;
+}
+.right::after {
+    content: '';
+    position: absolute; bottom: -100px; right: -100px;
+    width: 380px; height: 380px; pointer-events: none;
+    background: radial-gradient(circle, rgba(56,189,248,0.04) 0%, transparent 65%);
+}
+
+.form-box { width: 100%; max-width: 360px; position: relative; z-index: 1; }
+
+.form-title {
+    font-size: 32px; font-weight: 800; color: #f1f5f9;
+    margin-bottom: 8px; letter-spacing: -0.4px;
+}
+.form-sub {
+    font-size: 15px; font-weight: 500; color: #94a3b8;
+    line-height: 1.5; margin-bottom: 24px;
+}
+
+/* toggle */
+.toggle-row { display: flex; gap: 8px; margin-bottom: 0; }
+.toggle-btn {
+    flex: 1; padding: 10px 0;
+    border: 1px solid var(--border2); border-radius: 8px;
+    cursor: pointer; font-size: 14px; font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    background: transparent; color: var(--text-dim); transition: all 0.2s;
+}
+.toggle-btn:hover { border-color: rgba(56,189,248,0.35); color: var(--text); }
+.toggle-btn.active {
+    background: var(--cyan); border-color: var(--cyan);
+    color: #0a0f1a; font-weight: 600;
+}
+
+/* cyan gradient separator line */
+.toggle-sep {
+    height: 1px;
+    background: linear-gradient(90deg, var(--cyan-dim), rgba(56,189,248,0.05), transparent);
+    margin: 18px 0 20px 0;
+}
+
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+.field { margin-bottom: 16px; }
+.field label {
+    display: block; font-size: 12px; font-weight: 700;
+    color: #94a3b8; margin-bottom: 7px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+}
+.field input {
+    width: 100%; padding: 12px 14px;
+    background: var(--card-bg); border: 1px solid var(--border2);
+    border-radius: 8px; font-size: 15px; font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    color: #e2e8f0; outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field input::placeholder { color: var(--text-mute); }
+.field input:focus {
+    border-color: var(--cyan);
+    box-shadow: 0 0 0 3px var(--cyan-dim);
+}
+
+/* password show/hide wrapper */
+.input-wrap { position: relative; display: flex; align-items: center; }
+.input-wrap input { width: 100%; padding-right: 40px; }
+.eye-btn {
+    position: absolute; right: 12px;
+    background: none; border: none; cursor: pointer;
+    color: var(--text-dim); padding: 0;
+    display: flex; align-items: center;
+    transition: color 0.2s;
+}
+.eye-btn:hover { color: var(--cyan); }
+
+.remember {
+    display: flex; align-items: center; gap: 9px;
+    font-size: 14px; font-weight: 500; color: #94a3b8;
+    cursor: pointer; margin-bottom: 18px;
+}
+.remember input { accent-color: var(--cyan); width: 15px; height: 15px; }
+
+.submit-btn {
+    width: 100%; padding: 13px;
+    background: var(--cyan); color: #0a0f1a;
+    border: none; border-radius: 8px;
+    font-size: 15px; font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer; transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(56,189,248,0.22);
+    margin-bottom: 4px;
+}
+.submit-btn:hover {
+    background: #7dd3fc;
+    box-shadow: 0 4px 24px rgba(56,189,248,0.4);
+    transform: translateY(-1px);
+}
+
+.msg {
+    padding: 10px 14px; border-radius: 8px;
+    font-size: 13px; margin-top: 10px; display: none;
+}
+.msg.error   { background: rgba(239,68,68,0.1);  border: 1px solid rgba(239,68,68,0.3);  color: #fca5a5; }
+.msg.success { background: rgba(34,197,94,0.1);  border: 1px solid rgba(34,197,94,0.3);  color: #86efac; }
+
+.roles-label {
+    font-size: 11px; font-weight: 700; color: #475569;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 10px; margin-top: 16px;
+}
+.chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip {
+    padding: 6px 14px; border: 1px solid var(--border2);
+    border-radius: 6px; font-size: 12px; font-weight: 500;
+    color: #94a3b8; background: var(--card-bg);
+    transition: all 0.18s; cursor: default;
+}
+.chip:hover { border-color: rgba(56,189,248,0.3); color: var(--cyan); }
+
+#confirm-field { display: none; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ══ LEFT ══ -->
+  <div class="left">
+    <div class="brand">
+      <div class="live-badge"><span class="live-dot"></span> ICS Security Platform</div>
+      <div class="brand-title">Query ICS <span>Logs</span></div>
+      <p class="brand-sub">
+        Ask questions about your Industrial Control System security logs
+        in plain English — powered by BERT, FAISS, and a fully local Llama 3 model.
+      </p>
+      <ul class="feature-list">
+        <li><span class="feat-icon">→</span>Natural language queries — no complex syntax required</li>
+        <li><span class="feat-icon">↗</span>Searches 2,000+ HDFS log vectors using semantic BERT embeddings</li>
+        <li><span class="feat-icon">⚡</span>Fast, Detailed and Deep Analysis modes with FAISS top-K retrieval</li>
+        <li><span class="feat-icon">🔒</span>100% offline — no data leaves your machine, built for air-gapped ICS</li>
+      </ul>
+    </div>
+
+    <!-- pipeline — sits between feature list and stats -->
+    <div class="pipeline-box">
+      <div class="pipeline-label">RAG Pipeline</div>
+      <div class="pipeline">
+        <div class="p-step" id="ps-0"><span class="p-name">NL Query</span><span class="p-sub">Input</span></div>
+        <span class="p-arrow" id="pa-0">→</span>
+        <div class="p-step" id="ps-1"><span class="p-name">BERT</span><span class="p-sub">768-dim</span></div>
+        <span class="p-arrow" id="pa-1">→</span>
+        <div class="p-step" id="ps-2"><span class="p-name">FAISS</span><span class="p-sub">Top-K</span></div>
+        <span class="p-arrow" id="pa-2">→</span>
+        <div class="p-step" id="ps-3"><span class="p-name">Llama 3</span><span class="p-sub">8B Local</span></div>
+        <span class="p-arrow" id="pa-3">→</span>
+        <div class="p-step" id="ps-4"><span class="p-name">Answer</span><span class="p-sub">Output</span></div>
+      </div>
+    </div>
+
+    <div class="bottom">
+      <div class="stats-line">
+        2,000+ logs <span class="sep">·</span>
+        768 dimensions <span class="sep">·</span>
+        8B parameters <span class="sep">·</span>
+        100% offline
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ RIGHT ══ -->
+  <div class="right">
+    <div class="form-box">
+      <div class="form-title" id="form-title">Welcome back</div>
+      <div class="form-sub"   id="form-sub">Sign in to access the ICS log intelligence platform.</div>
+
+      <div class="toggle-row">
+        <button class="toggle-btn active" id="btn-login"  onclick="setMode('login')">Login</button>
+        <button class="toggle-btn"        id="btn-signup" onclick="setMode('signup')">Sign Up</button>
+      </div>
+
+      <div class="toggle-sep"></div>
+
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="username" placeholder="Enter your username"/>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <div class="input-wrap">
+          <input type="password" id="password" placeholder="Enter your password"/>
+          <button type="button" class="eye-btn" onclick="togglePassword('password', this)">
+            <svg id="eye-icon-password" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="field" id="confirm-field">
+        <label>Confirm Password</label>
+        <div class="input-wrap">
+          <input type="password" id="confirm" placeholder="Repeat your password"/>
+          <button type="button" class="eye-btn" onclick="togglePassword('confirm', this)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <label class="remember">
+        <input type="checkbox" id="remember"/> Keep me signed in
+      </label>
+
+      <button class="submit-btn" id="submit-btn" onclick="handleSubmit()">Sign In</button>
+      <div class="msg" id="msg"></div>
+
+      <div class="divider"></div>
+      <div class="roles-label">Access Roles</div>
+      <div class="chip-row">
+        <span class="chip">Admin</span>
+        <span class="chip">Security Operator</span>
+        <span class="chip">Read-Only</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function togglePassword(fieldId, btn) {
+    const input = document.getElementById(fieldId);
+    const isHidden = input.type === 'password';
+    input.type = isHidden ? 'text' : 'password';
+    btn.innerHTML = isHidden
+        ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+        : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+}
+
+let mode = 'login';
+
+function setMode(m) {
+    mode = m;
+    const login = m === 'login';
+    document.getElementById('form-title').textContent = login ? 'Welcome back' : 'Create account';
+    document.getElementById('form-sub').textContent   = login
+        ? 'Sign in to access the ICS log intelligence platform.'
+        : 'Register to get started with ICS-LogQueryGPT.';
+    document.getElementById('submit-btn').textContent = login ? 'Sign In' : 'Create Account';
+    document.getElementById('confirm-field').style.display = login ? 'none' : 'block';
+    document.getElementById('btn-login').classList.toggle('active',  login);
+    document.getElementById('btn-signup').classList.toggle('active', !login);
+    hideMsg();
+}
+
+function showMsg(type, text) {
+    const el = document.getElementById('msg');
+    el.className = 'msg ' + type;
+    el.textContent = text;
+    el.style.display = 'block';
+}
+function hideMsg() { document.getElementById('msg').style.display = 'none'; }
+
+function handleSubmit() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const confirm  = document.getElementById('confirm') ? document.getElementById('confirm').value : '';
+    const modeVal  = window.mode || 'login';
+
+    if (!username || !password) { showMsg('error', 'Please fill in all fields.'); return; }
+    if (modeVal === 'signup' && password !== confirm) { showMsg('error', 'Passwords do not match.'); return; }
+
+    showMsg('success', 'Signing in...');
+
+    const params = new URLSearchParams({
+        auth_user: username,
+        auth_pass: password,
+        auth_mode: modeVal,
+        auth_submit: '1'
+    });
+
+    window.top.location.href = window.top.location.origin + '?' + params.toString();
+}
+document.addEventListener('keydown', e => { if (e.key === 'Enter') handleSubmit(); });
+
+// pipeline step animation
+let cur = 0;
+setInterval(() => {
+    for (let i = 0; i < 5; i++)
+        document.getElementById('ps-'+i).classList.toggle('active', i === cur);
+    for (let a = 0; a < 4; a++)
+        document.getElementById('pa-'+a).classList.toggle('lit', a < cur);
+    cur = (cur + 1) % 5;
+}, 900);
+</script>
+</body>
+</html>

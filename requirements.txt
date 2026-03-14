@@ -1,0 +1,56 @@
+# Core Web & UI
+streamlit==1.53.0
+python-dotenv==1.2.1
+altair==6.0.0
+tornado==6.5.4
+watchdog==6.0.0
+pillow==12.1.0
+pydeck==0.9.1
+Pygments==2.19.2
+
+# Authentication
+bcrypt==5.0.0
+
+# Data Processing
+pandas==2.3.3
+numpy==2.4.1
+pyarrow==23.0.0
+pytz==2025.2
+python-dateutil==2.9.0.post0
+tzdata==2025.3
+
+# Visualization
+plotly==6.5.2
+
+# Testing
+pytest==9.0.2
+pytest-cov==4.1.0
+toml==0.10.2
+iniconfig==2.3.0
+pluggy==1.6.0
+
+# Machine Learning
+scikit-learn==1.8.0
+scipy==1.17.0
+joblib==1.5.3
+threadpoolctl==3.6.0
+faiss-cpu==1.13.2
+nltk==3.9.2
+sentence-transformers==5.2.2
+
+# LLM - Groq + Gemini
+langchain-groq==0.3.2
+langchain-google-genai==2.1.5
+langchain-core==0.3.65
+
+# HTTP & Utilities
+requests==2.32.5
+urllib3==2.6.3
+certifi==2026.1.4
+charset-normalizer==3.4.4
+idna==3.11
+click==8.3.1
+colorama==0.4.6
+tqdm==4.67.1
+packaging==25.0
+filelock==3.20.3

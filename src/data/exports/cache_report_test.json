@@ -1,0 +1,23 @@
+{
+  "cache_size": 2,
+  "cache_file": "data/cache/test_cache.json",
+  "cache_hits": 1,
+  "cache_misses": 2,
+  "total_queries": 3,
+  "hit_rate_percent": 33.33333333333333,
+  "cost_stats": {
+    "total_queries": 0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "total_cost": 0.0,
+    "avg_cost_per_query": 0,
+    "avg_input_tokens": 0,
+    "avg_output_tokens": 0,
+    "model": "gpt-3.5-turbo",
+    "cost_breakdown": {
+      "input_cost": 0.0,
+      "output_cost": 0.0
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "generated_at": "2026-02-03T13:28:31.347332",
+  "total_queries": 3,
+  "total_cost": 0.0042,
+  "total_tokens": 830,
+  "average_cost_per_query": 0.0014,
+  "average_tokens_per_query": 276.6666666666667,
+  "by_mode": {
+    "security": {
+      "queries": 2,
+      "total_cost": 0.0024,
+      "total_tokens": 450,
+      "avg_cost": 0.0012,
+      "avg_tokens": 225.0
+    },
+    "analysis": {
+      "queries": 1,
+      "total_cost": 0.0018,
+      "total_tokens": 380,
+      "avg_cost": 0.0018,
+      "avg_tokens": 380.0
+    }
+  },
+  "recommendations": []
+}
